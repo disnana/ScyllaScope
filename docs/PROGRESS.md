@@ -1,3 +1,9 @@
+## 11:00 UTC: 通知完走、compact開始
+
+通知900秒は10:44:07–10:59:07 UTCに完走。受信376390件、204受理188037件、意図した503が188353件、receiver検証エラー0。観測queue最大128/inflight160/retry500、固定インシデント500、両worker/queueの上限内。RSSのwarmup後記述傾き+1.10MiB/h、末尾+0.42MiB/hであり、短時間の値を長期安定の証明にはしない。
+
+10:59:07 UTCにSQLite compact1080秒を開始。原binary・固定full inputのままmetadata保存を比較する。基準測定完了見込み11:18 UTC、その後profileに根拠のあるSSE分割write修正・回帰/benchmark・6分確認・最終検証を行う。測定中のproduction変更/buildなし。collector失敗2件は未解明のまま保持。最終見込み約11:30 UTC。
+
 ## 10:46 UTC: SSE完走とprofileの根拠
 
 JSONのみ600秒、JSON/SSE900秒が完走。SSEは10:29:04–10:44:07 UTC、受信検証エラー0、約4Hz×2 SSE＋GET1Hzが成立。warmup→end alloc_space profileの推定約8.48GB中、fmt.Sprintf経路約4.62GB（54.44%）。これは累積の一時allocationで、live/RSSや漏れbytesではない。現在の通知900秒→compact1080秒の測定は中断しない。
