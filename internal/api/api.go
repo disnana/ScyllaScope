@@ -464,13 +464,7 @@ func (s *Server) stream(w http.ResponseWriter, r *http.Request) {
 	defer ticker.Stop()
 	rc := http.NewResponseController(w)
 	write := func(data string) error {
-		_ = rc.SetWriteDeadline(time.Now().Add(5 * time.Second))
-		if _, e := io.WriteString(w, data); e != nil {
-			return e
-		}
-		e := rc.Flush()
-		_ = rc.SetWriteDeadline(time.Time{})
-		return e
+		return writeSSEParts(w, rc, data, nil, "")
 	}
 	send := func() error {
 		// The collector has already read events/incidents once. Do not read and
@@ -480,7 +474,8 @@ func (s *Server) stream(w http.ResponseWriter, r *http.Request) {
 		if e != nil {
 			return e
 		}
-		return write(fmt.Sprintf("id: %d\nevent: snapshot\ndata: %s\n\n", snap.GeneratedAt.UnixMilli(), b))
+		header := fmt.Sprintf("id: %d\nevent: snapshot\ndata: ", snap.GeneratedAt.UnixMilli())
+		return writeSSEParts(w, rc, header, b, "\n\n")
 	}
 	if write("retry: 3000\n\n") != nil || send() != nil {
 		return

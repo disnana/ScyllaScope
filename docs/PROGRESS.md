@@ -1,3 +1,9 @@
+## 11:18 UTC: 基準測定終了、SSE修正・API回帰成功
+
+compact1080秒は10:59:07–11:17:08 UTCに完走。原binaryによる基準測定をすべて終了し、データを保持した。その後、SSEのheader/JSON bytes/終端を単一deadline/flush下で分けて書く修正を適用。API全体のrace回帰が4.143秒で成功。large Unicode JSON wire、各部分のshortwrite/error、flush error、slot/購読解放を追加確認。
+
+393KB framing-only benchmark（JSON生成・socketなし、Go1.27.3/GOGC100/GOMAXPROCS2/GOMEMLIMIT128MiB）はformatted802955B/op・5allocs/op、parts32B/op・1alloc/op。これは不要allocation削減の実証であり、RSS微増や数週間問題の解消判定ではない。全体build/test/race後、新binaryでjson_sse360秒の確認を1本行う。測定とbuildは重ねない。
+
 ## 11:00 UTC: 通知完走、compact開始
 
 通知900秒は10:44:07–10:59:07 UTCに完走。受信376390件、204受理188037件、意図した503が188353件、receiver検証エラー0。観測queue最大128/inflight160/retry500、固定インシデント500、両worker/queueの上限内。RSSのwarmup後記述傾き+1.10MiB/h、末尾+0.42MiB/hであり、短時間の値を長期安定の証明にはしない。

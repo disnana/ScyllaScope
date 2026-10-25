@@ -9,7 +9,7 @@ def utc():return datetime.datetime.now(datetime.timezone.utc).isoformat()
 def save(path,value):
     temp=path.with_suffix('.tmp');temp.write_text(json.dumps(value,indent=2)+'\n');temp.replace(path)
 def main():
-    p=argparse.ArgumentParser();p.add_argument('binary');p.add_argument('output');p.add_argument('--source-commit',required=True);p.add_argument('--compact',action='store_true');p.add_argument('--smoke',action='store_true');p.add_argument('--modes',help='Explicit comma-separated subset, preserving listed order');p.add_argument('--compact-seconds',type=int,default=1200);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('binary');p.add_argument('output');p.add_argument('--source-commit',required=True);p.add_argument('--compact',action='store_true');p.add_argument('--smoke',action='store_true');p.add_argument('--modes',help='Explicit comma-separated subset, preserving listed order');p.add_argument('--compact-seconds',type=int,default=1200);p.add_argument('--seconds',type=int,help='Duration override for exactly one explicit mode');a=p.parse_args()
     if len(a.source_commit)!=40 or any(c not in '0123456789abcdef' for c in a.source_commit):p.error('source commit must be full lowercase SHA')
     binary=pathlib.Path(a.binary).resolve();root=pathlib.Path(a.output).resolve();root.mkdir(mode=0o700,parents=True,exist_ok=False)
     if not 300<=a.compact_seconds<=1200:p.error('compact duration must be 300..1200 seconds')
@@ -18,6 +18,9 @@ def main():
         requested=a.modes.split(',');known={x[0]:x for x in plan}
         if len(set(requested))!=len(requested) or any(x not in known for x in requested):p.error('invalid or duplicate mode subset')
         plan=[known[x] for x in requested]
+    if a.seconds is not None:
+        if not a.modes or len(plan)!=1 or not plan[0][2]<a.seconds<=1800:p.error('seconds override requires one explicit mode and duration above its warmup, at most 1800')
+        plan=[(plan[0][0],a.seconds,plan[0][2])]
     if a.smoke:plan=[(mode,10,2) for mode,_,_ in plan]
     assert sum(x[1] for x in plan)<=5700
     manifest={'source_commit':a.source_commit,'binary_sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),'started_utc':utc(),'plan':plan,'sequential':True,'fresh_process_per_case':True,'GOMEMLIMIT':'128MiB','GOGC':'100','GOMAXPROCS':'2','measured_seconds_limit':5700,'cases':[],'complete':False}
