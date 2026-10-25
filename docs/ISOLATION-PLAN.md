@@ -50,3 +50,11 @@ collector_fixedには同一processの小さなCQL/HTTP fixture serverも含ま�
 collectorのみ診断binaryで予定の900秒を1回実行し、再度失敗すればそのcaseを未検証として止める。その他のJSON/SSE/通知/compactは元binaryで実行する。したがって全case同binaryという当初条件からcollectorだけ逸脱し、source/hashを別に記録する。productionコードは同一で、差分はテスト診断のみ。特にfull/compact SQLite比較は元の同一binaryを維持する。
 
 追加の失敗15.52秒＋診断60秒を吸収するため、compactを最大20分から18分（1080秒）へ短縮する。各caseの通常測定＋失敗＋追加診断は計95分以内に収める。停止中の調査時間を含むwall-clock完了見込みは当初11:19から約11:24 UTCへ更新する。再試験の成功を元の失敗原因の解消とは扱わず、両方を報告する。
+
+## 10:46 UTC: profileに基づく修正確認の追加
+
+collectorの再確認も461.53秒でCQL Dial 200ms timeoutとなり未完了。原因は未確定、3回目は実行しない。一方、完走したSSE900秒のwarmup→end alloc_space profile差分は約8.48GBの推定累積allocationを示し、fmt.Sprintf経路が約4.62GB（54.44%）だった。frame全体のSprintfはJSON全体を追加コピーするため、header/JSON bytes/終端を同じdeadline下で分けて書く最小修正を、現在の全case完了後に評価・適用する。これはallocation churnの根拠であり、生存heap・RSS微増の原因確定ではない。
+
+元の「追加確認1case」からは、根拠が得られたframing修正用の6分確認1本を追加する変更となる。理由は主目的に関連する大きな不要allocationがprofileで確認できたため。未完了collectorの未消費約7分を振り向け、compact18分を含む通常case・両失敗・60秒診断・新確認の合計は約93分となり、既存95分上限を守る。新規の無制限な測定へは拡張しない。
+
+baselineを途中変更せず、全case終了→patch→回帰とallocation benchmark→新binaryでjson_sse360秒（warmup180秒）を順に行い、build/benchmarkと測定を重ねない。新確認は実割り当て/処理率とwire互換性を確認する有限試験で、6分のRSS傾きで数週間問題の解消を判定しない。source/binary hash、profileと失敗データを区別して残す。

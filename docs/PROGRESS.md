@@ -1,3 +1,9 @@
+## 10:46 UTC: SSE完走とprofileの根拠
+
+JSONのみ600秒、JSON/SSE900秒が完走。SSEは10:29:04–10:44:07 UTC、受信検証エラー0、約4Hz×2 SSE＋GET1Hzが成立。warmup→end alloc_space profileの推定約8.48GB中、fmt.Sprintf経路約4.62GB（54.44%）。これは累積の一時allocationで、live/RSSや漏れbytesではない。現在の通知900秒→compact1080秒の測定は中断しない。
+
+全case完了後、payload全体のSprintfを分割writeへ変える最小案を回帰/benchmarkで確認し、新binaryで6分のjson_sse比較を1本追加する。未完了collectorの未消費時間を使って全測定95分以内。初回計画からの変更理由をISOLATION-PLAN.mdに明記。数週間問題の解消は未判定。
+
 ## 10:26 UTC: 現在の継続状況
 
 60秒診断は約10:07:28–10:08:28 UTC成功（時刻はsampleから復元）。collector再確認は10:09:45–10:17:27、461.53秒でCQL Dial 200ms timeoutにより停止。直後のTCP接続成功、元の原因は未特定。両失敗と診断成功を残し、collectorの3回目は行っていない。production処理やtimeoutを変更していない。
