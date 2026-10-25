@@ -1,0 +1,2 @@
+<script>import {clock} from '../state.js';import {checkState,latency,labels} from '../lib.js';export let value;export let ttl=30;export let caption='';export let timings=false;$: state=checkState(value,$clock,ttl);</script>
+<span class="check {state}" title={value?.message||labels[state]}><span class="dot"></span>{caption||labels[state]}{#if timings}<span class="mono quiet">{latency(value,$clock,ttl)}</span>{/if}</span>

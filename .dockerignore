@@ -1,0 +1,8 @@
+.git
+node_modules
+scyllascope
+bin
+test-results
+*.zip
+*.db*
+.env

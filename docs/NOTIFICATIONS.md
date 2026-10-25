@@ -1,0 +1,25 @@
+# 複数観測元の通知集約
+
+直接Discord/Generic webhookへ送る従来モードは観測元単位です。複数ノードの通知集約には、運用するAlertmanagerを `notifications.alertmanager_urls` に指定します。直接webhookとの併用は設定エラーにします。
+
+各ノードが全Alertmanager宛てに `/api/v2/alerts` を送信します。`sender_node` はこのモードでは使用しません。1台でも受理すれば送信状態を保存し、その後もretry_intervalごとにfiring状態を再送します。全宛先停止時はSQLiteの未送信状態を保持し、再起動後も再試行します。復旧まで送信できなかった場合は障害→復旧の順に受信口へ渡します。ただしAlertmanager側のgroup_wait中に復旧した短い障害は、そのポリシーにより通知されない場合があります。
+
+`examples/alertmanager.yaml` のgroup_byを使用してください。クラスタ、対象ノード、障害種別でまとめ、observerはアラートのラベルに残します。CQL・internode・サービス・DOWN・状態・メンバー欠落を分けます。方向依存のdiscovery/membership/asymmetric/peer不達はobserverもgroup_byに加える運用を検討してください。集約通知内には各observerの状態が残るため、一方向だけの障害も確認できます。
+
+同じグループの観測元が増減すると、group_interval後に更新通知が届く場合があります。「障害ごとに厳密に1通」という保証ではありません。一方だけ復旧しても他の観測元の同種アラートがfiringなら、グループ全体をresolvedにはしません。別プロトコルの障害は別グループです。
+
+AlertmanagerはScyllaDBと独立したサービスとして運用してください。複数台をクラスタリングし、永続ディスクを使用し、全受信口を設定します。通知ログの保存期間（`--data.retention`）をrepeat_interval以上にし、再起動後の通知重複を抑制します。観測ノード再起動ではラベルを変更しないでください。設定例は公開用の合成値です。実receiver URL・認証情報は保護された設定に置きます。ScyllaScopeからの受信口は私設ネットワークまたは認証ゲートウェイで保護し、TLS検証を無効化しないでください。
+
+保証の限界:
+
+- 外部webhookへの送信とSQLite/Alertmanagerの状態保存を原子的にはできません。送信成功直後のクラッシュでは再送があり得ます。Generic webhookのdelivery_idは受信側の冪等処理に使えます。
+- 観測元の全停止・長時間の分断では、AlertmanagerはendsAt（最低5分、retry_intervalの4倍）後にアラートを期限切れにします。これは正常復旧の証明ではありません。別系統の死活監視とAlertmanager自体の監視を必須とし、全観測元が停止する障害を補います。
+- 通知サービス停止中に観測ノードのディスクも喪失した場合、未送信情報は復元できません。HA Alertmanagerの分断中は重複通知があり得ます。
+- 古いRCが既にpruneした未送信の復旧済みインシデントは復元できません。新しいpending状態は、以降の障害から保持します。
+- ラベルの意味を移行する初回導入時、既存の直接通知から1回再通知される可能性があります。既存node_healthと新しい条件別インシデントを確認してください。
+
+実Alertmanager検証（別途バイナリが必要）:
+
+```bash
+python3 tools/test_alertmanager.py /path/to/alertmanager
+```

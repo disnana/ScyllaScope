@@ -1,0 +1,21 @@
+/scyllascope
+/bin/
+BUILD-VERIFIED.sha256
+/test-results/
+*.db
+*.db-wal
+*.db-shm
+*.log
+.env
+node_modules/
+__pycache__/
+.scyllascope-build.*
+
+# Private deployment material and observations
+/secrets.env
+/config.yaml
+/ui-token
+*.pem
+*.key
+*.jsonl
+/notification-relay

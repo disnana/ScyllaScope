@@ -1,0 +1,15 @@
+# Example for an independently operated, private Alertmanager service.
+# Put real receiver credentials in a protected deployment file, never here.
+global:
+  resolve_timeout: 5m
+route:
+  receiver: incident-webhook
+  group_by: [alertname, cluster, node, kind]
+  group_wait: 30s
+  group_interval: 1m
+  repeat_interval: 168h
+receivers:
+  - name: incident-webhook
+    webhook_configs:
+      - url: https://notifications.example.invalid/alerts
+        send_resolved: true

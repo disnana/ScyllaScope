@@ -1,0 +1,61 @@
+import '../vendor/svelte_internal_disclose-version.js';
+import '../vendor/svelte_internal_flags_legacy.js';
+import * as $ from '../vendor/svelte_internal_client.js';
+
+var root = $.from_svg(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path></path></svg>`);
+
+export default function Icon($$anchor, $$props) {
+	let name = $.prop($$props, 'name', 8, 'grid');
+	let size = $.prop($$props, 'size', 8, 18);
+
+	const paths = {
+		grid: 'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',
+		nodes: 'M4 3h16v7H4z M4 14h16v7H4z M7 6h.01 M7 17h.01 M11 6h6 M11 17h6',
+		topology: 'M9 2h6v6H9z M2 16h6v6H2z M16 16h6v6h-6z M12 8v4 M5 16v-4h14v4',
+		metrics: 'M3 3v18h18 M6 15l4-5 4 3 6-8',
+		alerts: 'M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9 M10 21h4',
+		events: 'M12 8v5l3 2 M21 12a9 9 0 1 1-9-9 9 9 0 0 1 9 9',
+		query: 'M4 6l5 6-5 6 M12 18h8',
+		settings: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M12 2v3 M12 19v3 M2 12h3 M19 12h3 M5 5l2 2 M17 17l2 2 M5 19l2-2 M17 7l2-2',
+		refresh: 'M20 7v5h-5 M4 17v-5h5 M6 6a8 8 0 0 1 13 3 M18 18A8 8 0 0 1 5 15',
+		sun: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M12 2v2 M12 20v2 M2 12h2 M20 12h2 M5 5l1 1 M18 18l1 1 M5 19l1-1 M18 6l1-1',
+		moon: 'M20 15A8 8 0 0 1 9 4 9 9 0 1 0 20 15',
+		chevron: 'M9 5l7 7-7 7',
+		close: 'M6 6l12 12 M18 6L6 18',
+		check: 'M5 12l4 4L19 6',
+		search: 'M10 3a7 7 0 1 0 0 14 7 7 0 0 0 0-14 M15 15l6 6',
+		download: 'M12 3v12 M7 10l5 5 5-5 M4 16v5h16v-5',
+		copy: 'M8 8h12v13H8z M4 16V3h12',
+		external: 'M14 3h7v7 M21 3L10 14 M10 3H3v18h18v-7',
+		shield: 'M12 2l9 4v6c0 5-9 10-9 10S3 17 3 12V6z M8 12l3 3 5-6',
+		info: 'M12 11v6 M12 7h.01 M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0',
+		pause: 'M8 5v14 M16 5v14',
+		play: 'M7 4l14 8-14 8z',
+		logout: 'M9 4H3v16h6 M12 12h9 M17 8l4 4-4 4',
+		menu: 'M4 6h16 M4 12h16 M4 18h16',
+		bolt: 'M13 2L4 14h7l-1 8 10-13h-7z',
+		box: 'M12 2l9 5v10l-9 5-9-5V7z M3 7l9 5 9-5 M12 12v10',
+		minus: 'M5 12h14',
+		plus: 'M5 12h14 M12 5v14',
+		fit: 'M4 9V4h5 M15 4h5v5 M20 15v5h-5 M9 20H4v-5',
+		arrow: 'M4 12h16 M15 7l5 5-5 5',
+		filter: 'M3 4h18l-7 8v7l-4 2v-9z'
+	};
+
+	var svg = root();
+	var path = $.child(svg);
+
+	$.reset(svg);
+
+	$.template_effect(() => {
+		$.set_attribute(svg, 'width', size());
+		$.set_attribute(svg, 'height', size());
+
+		$.set_attribute(path, 'd', (
+			$.deep_read_state(name()),
+			$.untrack(() => paths[name()] || paths.grid)
+		));
+	});
+
+	$.append($$anchor, svg);
+}
