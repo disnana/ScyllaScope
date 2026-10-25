@@ -12,7 +12,7 @@ Go1.27.3 `net/fd_unix.go` のconnect処理は、SO_ERRORが0になってもconte
 
 ## 有限な機構確認
 
-同じ既存binaryを20秒だけstraceで追跡した。80 refresh、480接続、SUPPORTED240、fixture read/writeエラー0。接続要求→SO_ERROR確認481件の中央値約0.57ms、最大約20.48msだった。追跡下の有限結果であり、元の遅延が消滅した証明ではない。
+同じ既存binaryを20秒だけstraceで追跡した。80 refresh、CQL/TCP fixture480接続、SUPPORTED240、fixture read/writeエラー0。HTTP fixture1接続も含む接続要求→SO_ERROR確認481件の中央値約0.57ms、最大約20.48msだった。追跡下の有限結果であり、元の遅延が消滅した証明ではない。
 
 次に自身のloopback test childの最初の該当getsockoptへ250msの遅延を注入した。straceの指定はtracee/threadごとに適用され、全processで1回だけではない。元binaryのtraceで4件のSO_ERROR=0が遅延し、fixtureは6接続を受付、SUPPORTED0。CQL/TCPは約250msでDial timeoutになり、旧ハーネスは約0.88秒でfatal終了した。**kernel側の受付とclient側deadline NGが両立し、その健全性NGだけでメモリtrialが止まる機構を再現した。元の2件が同じ遅延原因だったという証明ではない。**
 
@@ -23,7 +23,7 @@ Go1.27.3 `net/fd_unix.go` のconnect処理は、SO_ERRORが0になってもconte
 - 保持はnode×protocolの6固定slot。privateログも各slotの初回だけ、最大6件とし、新しいログ蓄積による見かけのメモリ増加を入れない。公開要約には元のerror文字列・URL/PID/pathを入れない。
 - runnerは資源完走と健全性を別に扱う。健全性NGは`degraded`で残して後続の独立caseを実行し、全体終了コードを2にする。資源失敗やend telemetry欠落は成功扱いしない。
 
-同種の注入下で修正binaryのcollectorを10秒、後続json_onlyを10秒実行した。collectorは39 refresh/234接続、CQL NG3件・TCP NG1件を保持して資源計測を完走し、後続caseも実行した。manifestは`degraded, pass`、controllerは終了コード2。短い診断に傾きの有効sample数はなく、RSS比較には使わない。先行93.10分に今回の20秒追跡・旧注入失敗・新2caseを加えたcase時間も約93.82分で、95分以内である（通常のunit/benchmark/CI時間とは区別）。
+同種の注入下で修正binaryのcollectorを10秒、後続json_onlyを10秒実行した。collectorは39 refresh/234接続、CQL NG3件・TCP NG1件を保持して資源計測を完走し、後続caseも実行した。manifestは`degraded, pass`、controllerは終了コード2。短い診断に傾き判断に十分なsample数はなく、RSS比較には使わない。先行93.10分に今回の20秒追跡・旧注入失敗・新2caseを加えたcase時間も約93.82分で、95分以内である（通常のunit/benchmark/CI時間とは区別）。
 
 11連続NGでもログ1件・失敗11件となり、回復後もNGを保持するtracker回帰2件（race含む）、runnerの終了状態/回復/欠落telemetry/資源停止の回帰4件が成功した。CIにもこれらの回帰を追加した。[数値・source/hash・分類結果](validation/collector-followup.json)。生のsyscall/test logは公開しない。
 
