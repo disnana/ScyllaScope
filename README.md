@@ -7,22 +7,22 @@ ScyllaDBの各ノードから接続・クラスタ状態を観測する監視UI�
 ## install
 
 ```bash
-bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/disnana/ScyllaScope/main/install.sh | bash -s -- install --version v0.6.3-rc.2'
+bash -o pipefail -c 'script=$(curl -fsSL https://raw.githubusercontent.com/disnana/ScyllaScope/main/install.sh) && printf "%s\n" "$script" | bash -s -- install --version v0.6.3-rc.2'
 ```
 
 ## update
 
 ```bash
-bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/disnana/ScyllaScope/main/install.sh | bash -s -- update --version v0.6.3-rc.2'
+bash -o pipefail -c 'script=$(curl -fsSL https://raw.githubusercontent.com/disnana/ScyllaScope/main/install.sh) && printf "%s\n" "$script" | bash -s -- update --version v0.6.3-rc.2'
 ```
 
 ## uninstall
 
 ```bash
-bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/disnana/ScyllaScope/main/install.sh | bash -s -- uninstall'
+bash -o pipefail -c 'script=$(curl -fsSL https://raw.githubusercontent.com/disnana/ScyllaScope/main/install.sh) && printf "%s\n" "$script" | bash -s -- uninstall'
 ```
 
-それぞれ1回のコマンドで完結します。必要時のみsudoがパスワードを求めます。Bash、curl、Linuxの標準的なtar/sha256sum/coreutils、動作中のsystemdが必要です。非対応OS/CPU・取得失敗・検証失敗は導入前に停止します。パイプの取得失敗も終了コードへ反映するため、上の`pipefail`付きコマンドを使ってください。
+それぞれ1回のコマンドで完結します。必要時のみsudoがパスワードを求めます。Bash、curl、Linuxの標準的なtar/sha256sum/coreutils、動作中のsystemdが必要です。非対応OS/CPU・取得失敗・検証失敗は導入前に停止します。上のコマンドはscriptの取得が完全に成功してからbashへ渡し、取得失敗時は導入を開始しません。パイプの失敗も終了コードへ反映します。
 
 `--version`はバージョン固定です。公開された安定版の最新版を使う場合、install/updateから`--version v0.6.3-rc.2`を外します。GitHubのlatestはprereleaseを含まないため、RCは明示して固定します。Scriptは公式`disnana/ScyllaScope`のReleaseだけを取得し、CPUを自動判定、SHA-256・archive member・CLI versionを検証します。checksumは同じ配布元の整合性確認で、独立署名の代替ではありません。
 

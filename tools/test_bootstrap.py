@@ -191,12 +191,14 @@ sys.exit(99)
         command = shlex.split(lines[index])
         self.assertEqual(command[:4], ['bash', '-o', 'pipefail', '-c'])
         self.assertEqual(len(command), 5)
-        pipeline = shlex.split(command[4])
-        self.assertEqual(pipeline[:8], ['curl', '-fsSL', RAW, '|', 'bash', '-s', '--', action])
+        # Full successful retrieval must precede starting the consumer. The
+        # command substitution preserves curl status; && prevents dispatch
+        # even when a failed producer emitted an otherwise complete script.
+        expected = ('script=$(curl -fsSL '+RAW+') && '+
+                    r'printf "%s\n" "$script" | bash -s -- '+action)
         if action in ('install', 'update'):
-            self.assertEqual(pipeline[8:], ['--version', TAG])
-        else:
-            self.assertEqual(pipeline[8:], [])
+            expected += ' --version '+TAG
+        self.assertEqual(command[4], expected)
         return subprocess.run(command, text=True, capture_output=True, cwd=self.work,
                               env=self.env, timeout=20)
 
@@ -273,6 +275,27 @@ sys.exit(99)
         self.assert_rejected_without_privilege(self.invoke('install'), no_payload=True)
         self.assertFalse((self.root/'escaped').exists())
         self.assertFalse((self.work/'escaped').exists())
+
+    def assert_readme_download_failure_safe(self, index, action):
+        for failure_mode in ['complete_fail', 'truncated_fail']:
+            with self.subTest(action=action, failure_mode=failure_mode):
+                self.config['raw_mode'] = failure_mode
+                self.save_config()
+                result = self.invoke_readme(index, action)
+                self.assert_rejected_without_privilege(result, no_payload=True)
+                self.assertTrue(self.calls('curl'))
+                self.assertTrue(all(url == RAW for url in self.calls('curl')))
+
+    def test_readme_install_download_failures_do_not_execute_payload(self):
+        self.assert_readme_download_failure_safe(0, 'install')
+
+    def test_readme_update_download_failures_do_not_execute_payload(self):
+        self.install_existing()
+        self.assert_readme_download_failure_safe(1, 'update')
+
+    def test_readme_uninstall_download_failures_do_not_execute_payload(self):
+        self.install_existing()
+        self.assert_readme_download_failure_safe(2, 'uninstall')
 
     def test_install_fetches_latest_once_then_pins_official_urls(self):
         result = self.invoke('install')

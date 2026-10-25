@@ -12,7 +12,7 @@
 
 ```bash
 # 初回Release公開後、ビルド済みRCを検証して導入
-bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/disnana/ScyllaScope/main/install.sh | bash -s -- install --version v0.6.3-rc.2'
+bash -o pipefail -c 'script=$(curl -fsSL https://raw.githubusercontent.com/disnana/ScyllaScope/main/install.sh) && printf "%s\n" "$script" | bash -s -- install --version v0.6.3-rc.2'
 ```
 
 配布インストーラーは検証済みRelease binaryを使用します。専用ユーザー `scyllascope` を作成し、取得・検証済みのバイナリを配置します。UIトークンは初回のみ作り、既存の `/etc/scyllascope/config.yaml`、ui-token、secrets.envを保持します。Scylla設定ファイルの読取権限が不足すれば停止し、DBの権限を自動変更しません。実際のトークンは保護された端末で `sudo cat /etc/scyllascope/ui-token` を確認します。
@@ -23,7 +23,7 @@ bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/disnana/Scylla
 
 ```bash
 # ビルド済みRCを取得して更新（初回Release公開後）
-bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/disnana/ScyllaScope/main/install.sh | bash -s -- update --version v0.6.3-rc.2'
+bash -o pipefail -c 'script=$(curl -fsSL https://raw.githubusercontent.com/disnana/ScyllaScope/main/install.sh) && printf "%s\n" "$script" | bash -s -- update --version v0.6.3-rc.2'
 ```
 
 既存設定が通常のパスなら引数は不要です。ローカルの別ファイルを明示的に適用する時だけ `./tools/install-local.sh --config /private/path/config.yaml` を使います。既存設定の初期化やサンプルへの置換は行いません。
@@ -45,7 +45,7 @@ sudo systemctl status scyllascope --no-pager
 ## アンインストール
 
 ```bash
-bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/disnana/ScyllaScope/main/install.sh | bash -s -- uninstall'
+bash -o pipefail -c 'script=$(curl -fsSL https://raw.githubusercontent.com/disnana/ScyllaScope/main/install.sh) && printf "%s\n" "$script" | bash -s -- uninstall'
 ```
 
 ScyllaScopeのみ停止・無効化し、配置したバイナリとunitを削除します。設定・資格情報・監視DB・バックアップは既定で保持します。再インストールで再利用できます。

@@ -5,13 +5,16 @@ are copied; only explicit upstream license/notice texts are aggregated.
 """
 import argparse
 import json
+import os
 from pathlib import Path
 import subprocess
 
 ROOT=Path(__file__).resolve().parents[1]
 
-def go(*args):
-    return subprocess.check_output(['go',*args],cwd=ROOT,text=True)
+def go(*args, target=None):
+    env=dict(os.environ)
+    if target:env.update(GOOS='linux',GOARCH=target,CGO_ENABLED='0',GOWORK='off',GOFLAGS='')
+    return subprocess.check_output(['go',*args],cwd=ROOT,text=True,env=env)
 
 def objects(body):
     decoder=json.JSONDecoder();index=0
@@ -30,11 +33,12 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',required=True);args=parser.parse_args()
     modules={}
-    for package in objects(go('list','-mod=readonly','-deps','-json','./cmd/scyllascope')):
-        module=package.get('Module')
-        if not module or module.get('Main'):continue
-        effective=module.get('Replace') or module
-        modules[(effective['Path'],effective.get('Version',''))]=effective
+    for target in ('amd64','arm64'):
+        for package in objects(go('list','-mod=readonly','-deps','-json','./cmd/scyllascope',target=target)):
+            module=package.get('Module')
+            if not module or module.get('Main'):continue
+            effective=module.get('Replace') or module
+            modules[(effective['Path'],effective.get('Version',''))]=effective
     if not modules:raise SystemExit('No production module inventory; refusing incomplete notices')
     parts=[(ROOT/'THIRD_PARTY.md').read_text().rstrip(),
            '\n---\n\n# Exact license texts for this prebuilt distribution\n',
