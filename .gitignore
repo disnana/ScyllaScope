@@ -19,3 +19,6 @@ __pycache__/
 *.key
 *.jsonl
 /notification-relay
+
+# Prepared release archives (uploaded as CI artifacts; not source files)
+/dist/

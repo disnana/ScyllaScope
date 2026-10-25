@@ -1,5 +1,9 @@
 name: validate
-on: [pull_request, workflow_dispatch]
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
 concurrency:
   group: validate-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -25,21 +29,26 @@ jobs:
           node web/build.mjs
           diff -u /tmp/frontend-before.sha256 internal/api/static/ui-manifest.sha256
           node --test web/test/*.test.mjs
-      - name: Build preflight failure regressions
-        run: python3 tools/test_build_gate.py
+      - name: Build preflight and bootstrap transport regressions
+        run: |
+          python3 tools/test_build_gate.py
+          python3 tools/test_bootstrap.py
       - name: Isolation health/resource classification regressions
         run: |
           python3 tools/test_isolation_runner.py
           go test -race -tags=memory.counters -run '^TestIsolationProbe' -count=1 ./internal/monitor
-      - name: Full dependency tests and production build
+      - name: Full validation and prebuilt Linux AMD64/ARM64 distribution
         env:
           SCYLLASCOPE_RACE_TESTS: '1'
-        run: ./build.sh
-      - name: Compile for both deployed CPU architectures
         run: |
-          mkdir -p bin
-          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -o bin/scyllascope-linux-amd64 ./cmd/scyllascope
-          GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -trimpath -o bin/scyllascope-linux-arm64 ./cmd/scyllascope
+          version=$(sed -nE 's/^const Version = "([^"]+)"$/\1/p' internal/model/model.go)
+          tools/package-release.sh --tag "v$version" --output "$RUNNER_TEMP/prebuilt"
+      - name: Upload verified prebuilt distribution (no Release publication)
+        uses: actions/upload-artifact@v4
+        with:
+          name: prebuilt-release
+          path: ${{ runner.temp }}/prebuilt/*
+          if-no-files-found: error
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -62,9 +71,7 @@ jobs:
           name: validation-artifacts
           path: |
             test-results/
-            bin/
             go.sum
-            BUILD-VERIFIED.sha256
   vulnerability-scan:
     runs-on: ubuntu-24.04
     timeout-minutes: 15

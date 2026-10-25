@@ -1,0 +1,120 @@
+name: prepare-or-publish-prebuilt
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Exact v + internal/model.Version (publication requires an existing tag)'
+        required: true
+        default: v0.6.3-rc.2
+        type: string
+      publish:
+        description: 'Publish a new Release only after separate approval; false prepares artifacts'
+        required: true
+        default: false
+        type: boolean
+permissions:
+  contents: read
+concurrency:
+  group: prebuilt-${{ inputs.tag }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    permissions:
+      contents: read
+    outputs:
+      source_sha: ${{ steps.metadata.outputs.source_sha }}
+      artifact_name: ${{ steps.metadata.outputs.artifact_name }}
+    steps:
+      - name: Validate tag input
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z]+([.-][0-9A-Za-z]+)*)?$ ]]
+          (( ${#RELEASE_TAG} <= 81 ))
+      - uses: actions/checkout@v4
+        with:
+          # false uses the workflow's selected ref; true can only build an existing tag.
+          ref: ${{ inputs.publish && format('refs/tags/{0}', inputs.tag) || github.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify selected source and record candidate identity
+        id: metadata
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          PUBLISH: ${{ inputs.publish }}
+        run: |
+          if [[ "$PUBLISH" == true ]]; then
+            git show-ref --verify "refs/tags/$RELEASE_TAG"
+            [[ "$(git rev-parse HEAD)" == "$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")" ]]
+          fi
+          printf 'source_sha=%s\n' "$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          printf 'artifact_name=prebuilt-%s-%s\n' "$RELEASE_TAG" "$GITHUB_RUN_ID" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate and package Linux amd64/arm64
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          SCYLLASCOPE_RACE_TESTS: '1'
+        run: tools/package-release.sh --tag "$RELEASE_TAG" --output "$RUNNER_TEMP/scyllascope-assets"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.metadata.outputs.artifact_name }}
+          path: ${{ runner.temp }}/scyllascope-assets/*
+          if-no-files-found: error
+          retention-days: 14
+      - name: Record review status
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          SOURCE_SHA: ${{ steps.metadata.outputs.source_sha }}
+          PUBLISH: ${{ inputs.publish }}
+        run: |
+          printf 'Candidate: %s\nSource: %s\nPublish requested: %s\n' "$RELEASE_TAG" "$SOURCE_SHA" "$PUBLISH" >> "$GITHUB_STEP_SUMMARY"
+          printf 'Build success does not approve long-term memory behavior or native systemd installation.\n' >> "$GITHUB_STEP_SUMMARY"
+  publish:
+    if: ${{ inputs.publish }}
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build.outputs.artifact_name }}
+          path: ${{ runner.temp }}/scyllascope-assets
+      - name: Verify artifacts and create a new Release from the existing tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.tag }}
+          SOURCE_SHA: ${{ needs.build.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/scyllascope-assets"
+          sha256sum --check --status SHA256SUMS
+          [[ "$(cat VERSION)" == "${RELEASE_TAG#v}" ]]
+          # Only 404 means absent. Auth/network failures must not be treated as absence.
+          if response=$(gh api --include "repos/$GH_REPO/releases/tags/$RELEASE_TAG" 2>/dev/null); then
+            echo 'Release already exists; refusing overwrite or duplicate publication.' >&2
+            exit 1
+          elif [[ ! "$response" =~ ^HTTP/[0-9.]+[[:space:]]+404[[:space:]] ]]; then
+            echo 'Could not confirm Release absence; publication stopped.' >&2
+            exit 1
+          fi
+          printf 'Prebuilt Linux amd64/arm64 binaries.\n\nSource commit: %s\n\nConsumer installation requires no Go or Node.js. Review docs/RELEASING.md and the validation reports before deployment.\n' "$SOURCE_SHA" > "$RUNNER_TEMP/scyllascope-release-notes.md"
+          flags=()
+          if [[ "$RELEASE_TAG" == *-* ]]; then flags+=(--prerelease); fi
+          # --verify-tag never creates/pushes a missing tag; no --clobber or upload retry.
+          gh release create "$RELEASE_TAG" \
+            "scyllascope-$RELEASE_TAG-linux-amd64.tar.gz" \
+            "scyllascope-$RELEASE_TAG-linux-arm64.tar.gz" \
+            VERSION SHA256SUMS install.sh \
+            --verify-tag --title "ScyllaScope $RELEASE_TAG" \
+            --notes-file "$RUNNER_TEMP/scyllascope-release-notes.md" "${flags[@]}"
