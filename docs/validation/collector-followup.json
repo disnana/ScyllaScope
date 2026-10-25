@@ -1,0 +1,2673 @@
+{
+  "schema_version": 1,
+  "scope": "Short diagnostic and test-contract regression; not RSS acceptance",
+  "historical_delay_cause": "not established",
+  "harness_cause": "Probe health NG incorrectly terminated independent resource measurement",
+  "source_commit": "f6f941f2e25b2e4994bc39c521b3d120df9ee217",
+  "case_binary_sha256": "5158999b56e0bbe5ac0c5c2f1b3bca414ec91b76c7302346b357048047c88324",
+  "after_fault_injection": {
+    "schema_version": 1,
+    "started_utc": "2026-10-25T11:54:40.011068+00:00",
+    "finished_utc": "2026-10-25T11:55:02.048382+00:00",
+    "source_commit": "f6f941f2e25b2e4994bc39c521b3d120df9ee217",
+    "binary_sha256": "5158999b56e0bbe5ac0c5c2f1b3bca414ec91b76c7302346b357048047c88324",
+    "manifest_complete": true,
+    "all_planned_cases_completed_successfully": false,
+    "all_case_analysis_evidence_usable": false,
+    "sequential": true,
+    "fresh_process_per_case": true,
+    "runtime_configuration": {
+      "GOMEMLIMIT": "128MiB",
+      "GOGC": "100",
+      "GOMAXPROCS": "2"
+    },
+    "measured_seconds_limit": 5700,
+    "cases": [
+      {
+        "mode": "collector_fixed",
+        "manifest_state": "degraded",
+        "started_utc": "2026-10-25T11:54:40.012218+00:00",
+        "finished_utc": "2026-10-25T11:54:51.027641+00:00",
+        "manifest_exit_code": 0,
+        "planned_duration_seconds": 10,
+        "planned_warmup_seconds": 2,
+        "observed_manifest_wall_seconds": 11.01,
+        "case_completed_successfully": false,
+        "resource_workload_completed": true,
+        "probe_health_failed": true,
+        "analysis_evidence_usable": true,
+        "samples_total": 6,
+        "slope_eligible_samples": 2,
+        "eligible_start_seconds": 5.040169898,
+        "eligible_end_seconds": 10.040116499,
+        "last_third_start_seconds": 8.373467632,
+        "last_third_samples": 1,
+        "memory_statistics": {
+          "rss_bytes": {
+            "all_eligible": {
+              "n": 2,
+              "first": 17113088,
+              "last": 16977920,
+              "min": 16977920,
+              "median": 17045504.0,
+              "max": 17113088,
+              "last_minus_first": -135168,
+              "ols_per_hour": -97321999.37948899,
+              "unit": "bytes"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 16977920,
+              "last": 16977920,
+              "min": 16977920,
+              "median": 16977920,
+              "max": 16977920,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            }
+          },
+          "go_sys_bytes": {
+            "all_eligible": {
+              "n": 2,
+              "first": 13474056,
+              "last": 13474056,
+              "min": 13474056,
+              "median": 13474056.0,
+              "max": 13474056,
+              "last_minus_first": 0,
+              "ols_per_hour": 0.0,
+              "unit": "bytes"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 13474056,
+              "last": 13474056,
+              "min": 13474056,
+              "median": 13474056,
+              "max": 13474056,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            }
+          },
+          "heap_alloc_bytes": {
+            "all_eligible": {
+              "n": 2,
+              "first": 2019096,
+              "last": 2684472,
+              "min": 2019096,
+              "median": 2351784.0,
+              "max": 2684472,
+              "last_minus_first": 665376,
+              "ols_per_hour": 479075836.43411803,
+              "unit": "bytes"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 2684472,
+              "last": 2684472,
+              "min": 2684472,
+              "median": 2684472,
+              "max": 2684472,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            }
+          },
+          "heap_inuse_bytes": {
+            "all_eligible": {
+              "n": 2,
+              "first": 3006464,
+              "last": 3710976,
+              "min": 3006464,
+              "median": 3358720.0,
+              "max": 3710976,
+              "last_minus_first": 704512,
+              "ols_per_hour": 507254057.37188196,
+              "unit": "bytes"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 3710976,
+              "last": 3710976,
+              "min": 3710976,
+              "median": 3710976,
+              "max": 3710976,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            }
+          },
+          "heap_idle_bytes": {
+            "all_eligible": {
+              "n": 2,
+              "first": 4825088,
+              "last": 4087808,
+              "min": 4087808,
+              "median": 4456448.0,
+              "max": 4825088,
+              "last_minus_first": -737280,
+              "ols_per_hour": -530847269.34266716,
+              "unit": "bytes"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 4087808,
+              "last": 4087808,
+              "min": 4087808,
+              "median": 4087808,
+              "max": 4087808,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            }
+          },
+          "heap_released_bytes": {
+            "all_eligible": {
+              "n": 2,
+              "first": 3047424,
+              "last": 3268608,
+              "min": 3047424,
+              "median": 3158016.0,
+              "max": 3268608,
+              "last_minus_first": 221184,
+              "ols_per_hour": 159254180.80280015,
+              "unit": "bytes"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 3268608,
+              "last": 3268608,
+              "min": 3268608,
+              "median": 3268608,
+              "max": 3268608,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            }
+          },
+          "stack_inuse_bytes": {
+            "all_eligible": {
+              "n": 2,
+              "first": 557056,
+              "last": 589824,
+              "min": 557056,
+              "median": 573440.0,
+              "max": 589824,
+              "last_minus_first": 32768,
+              "ols_per_hour": 23593211.970785208,
+              "unit": "bytes"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 589824,
+              "last": 589824,
+              "min": 589824,
+              "median": 589824,
+              "max": 589824,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            }
+          },
+          "stack_sys_bytes": {
+            "all_eligible": {
+              "n": 2,
+              "first": 557056,
+              "last": 589824,
+              "min": 557056,
+              "median": 573440.0,
+              "max": 589824,
+              "last_minus_first": 32768,
+              "ols_per_hour": 23593211.970785208,
+              "unit": "bytes"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 589824,
+              "last": 589824,
+              "min": 589824,
+              "median": 589824,
+              "max": 589824,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            }
+          },
+          "heap_objects": {
+            "all_eligible": {
+              "n": 2,
+              "first": 3839,
+              "last": 4442,
+              "min": 3839,
+              "median": 4140.5,
+              "max": 4442,
+              "last_minus_first": 603,
+              "ols_per_hour": 434164.63679148804,
+              "unit": "count"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 4442,
+              "last": 4442,
+              "min": 4442,
+              "median": 4442,
+              "max": 4442,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "count"
+            }
+          },
+          "next_gc_bytes": {
+            "all_eligible": {
+              "n": 2,
+              "first": 4194304,
+              "last": 4194304,
+              "min": 4194304,
+              "median": 4194304.0,
+              "max": 4194304,
+              "last_minus_first": 0,
+              "ols_per_hour": 0.0,
+              "unit": "bytes"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 4194304,
+              "last": 4194304,
+              "min": 4194304,
+              "median": 4194304,
+              "max": 4194304,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            }
+          },
+          "allocator_live_allocations": {
+            "all_eligible": {
+              "n": 2,
+              "first": 2,
+              "last": 2,
+              "min": 2,
+              "median": 2.0,
+              "max": 2,
+              "last_minus_first": 0,
+              "ols_per_hour": 0.0,
+              "unit": "count"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 2,
+              "last": 2,
+              "min": 2,
+              "median": 2,
+              "max": 2,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "count"
+            }
+          },
+          "allocator_mapped_bytes": {
+            "all_eligible": {
+              "n": 2,
+              "first": 1048576,
+              "last": 1048576,
+              "min": 1048576,
+              "median": 1048576.0,
+              "max": 1048576,
+              "last_minus_first": 0,
+              "ols_per_hour": 0.0,
+              "unit": "bytes"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 1048576,
+              "last": 1048576,
+              "min": 1048576,
+              "median": 1048576,
+              "max": 1048576,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            }
+          },
+          "allocator_mappings": {
+            "all_eligible": {
+              "n": 2,
+              "first": 16,
+              "last": 16,
+              "min": 16,
+              "median": 16.0,
+              "max": 16,
+              "last_minus_first": 0,
+              "ols_per_hour": 0.0,
+              "unit": "count"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 16,
+              "last": 16,
+              "min": 16,
+              "median": 16,
+              "max": 16,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "count"
+            }
+          }
+        },
+        "natural_gc": {
+          "num_gc": {
+            "n": 2,
+            "first": 7,
+            "last": 13,
+            "min": 7,
+            "median": 10.0,
+            "max": 13,
+            "last_minus_first": 6
+          },
+          "num_gc_delta": 6,
+          "observed_sample_intervals_with_gc_progress": 1,
+          "age_seconds": {
+            "n": 2,
+            "first": 0.247906537,
+            "last": 0.501422144,
+            "min": 0.247906537,
+            "median": 0.37466434049999997,
+            "max": 0.501422144,
+            "last_minus_first": 0.253515607
+          },
+          "heap_alloc_is_live_heap": false,
+          "note": "Natural-GC HeapAlloc and HeapObjects depend on GC phase; no forced GC occurs in eligible samples."
+        },
+        "observed_operating_bounds": {
+          "rss_bytes": {
+            "observed": {
+              "n": 5,
+              "first": 14344192,
+              "last": 16977920,
+              "min": 14344192,
+              "median": 16977920,
+              "max": 17113088,
+              "last_minus_first": 2633728
+            },
+            "configured_upper_limit": 268435456,
+            "observed_limit_exceeded": false
+          },
+          "allocator_mapped_bytes": {
+            "observed": {
+              "n": 5,
+              "first": 1048576,
+              "last": 1048576,
+              "min": 1048576,
+              "median": 1048576,
+              "max": 1048576,
+              "last_minus_first": 0
+            },
+            "configured_upper_limit": 134217728,
+            "observed_limit_exceeded": false
+          },
+          "open_fds": {
+            "observed": {
+              "n": 5,
+              "first": 11,
+              "last": 13,
+              "min": 11,
+              "median": 13,
+              "max": 13,
+              "last_minus_first": 2
+            },
+            "configured_upper_limit": 128,
+            "observed_limit_exceeded": false
+          },
+          "goroutines": {
+            "observed": {
+              "n": 5,
+              "first": 6,
+              "last": 9,
+              "min": 6,
+              "median": 9,
+              "max": 9,
+              "last_minus_first": 3
+            },
+            "configured_upper_limit": 512,
+            "observed_limit_exceeded": false
+          }
+        },
+        "observed_operating_resource_counts": {
+          "open_fds": {
+            "n": 5,
+            "first": 11,
+            "last": 13,
+            "min": 11,
+            "median": 13,
+            "max": 13,
+            "last_minus_first": 2
+          },
+          "goroutines": {
+            "n": 5,
+            "first": 6,
+            "last": 9,
+            "min": 6,
+            "median": 9,
+            "max": 9,
+            "last_minus_first": 3
+          },
+          "known_nodes": {
+            "n": 5,
+            "first": 3,
+            "last": 3,
+            "min": 3,
+            "median": 3,
+            "max": 3,
+            "last_minus_first": 0
+          },
+          "monitor_subscriptions": {
+            "n": 5,
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "median": 0,
+            "max": 0,
+            "last_minus_first": 0
+          },
+          "repository_incidents": {
+            "n": 5,
+            "first": 500,
+            "last": 500,
+            "min": 500,
+            "median": 500,
+            "max": 500,
+            "last_minus_first": 0
+          },
+          "repository_topology_rows": {
+            "n": 5,
+            "first": 1,
+            "last": 1,
+            "min": 1,
+            "median": 1,
+            "max": 1,
+            "last_minus_first": 0
+          },
+          "repository_topology_nodes": {
+            "n": 5,
+            "first": 3,
+            "last": 3,
+            "min": 3,
+            "median": 3,
+            "max": 3,
+            "last_minus_first": 0
+          },
+          "repository_topology_incidents": {
+            "n": 5,
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "median": 0,
+            "max": 0,
+            "last_minus_first": 0
+          },
+          "repository_history_rows": {
+            "n": 5,
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "median": 0,
+            "max": 0,
+            "last_minus_first": 0
+          },
+          "repository_event_rows": {
+            "n": 5,
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "median": 0,
+            "max": 0,
+            "last_minus_first": 0
+          },
+          "cql_probe_failures": {
+            "n": 5,
+            "first": 0,
+            "last": 3,
+            "min": 0,
+            "median": 3,
+            "max": 3,
+            "last_minus_first": 3
+          },
+          "tcp_probe_failures": {
+            "n": 5,
+            "first": 0,
+            "last": 1,
+            "min": 0,
+            "median": 1,
+            "max": 1,
+            "last_minus_first": 1
+          },
+          "probe_health_observations": {
+            "n": 5,
+            "first": 0,
+            "last": 234,
+            "min": 0,
+            "median": 114,
+            "max": 234,
+            "last_minus_first": 234
+          }
+        },
+        "throughput_operating_interval": {
+          "operations": {
+            "first": 0,
+            "last": 39,
+            "observed_interval_seconds": 10.0394921,
+            "delta": 39,
+            "counter_monotonic": true,
+            "per_second": 3.8846586671451235
+          },
+          "codec_operations": {
+            "first": 0,
+            "last": 0,
+            "observed_interval_seconds": 10.0394921,
+            "delta": 0,
+            "counter_monotonic": true,
+            "per_second": 0.0
+          },
+          "codec_bytes": {
+            "first": 0,
+            "last": 0,
+            "observed_interval_seconds": 10.0394921,
+            "delta": 0,
+            "counter_monotonic": true,
+            "per_second": 0.0
+          },
+          "successful_cql_probes": {
+            "first": 0,
+            "last": 114,
+            "observed_interval_seconds": 10.0394921,
+            "delta": 114,
+            "counter_monotonic": true,
+            "per_second": 11.355156103962669
+          },
+          "discarded_event_writes": {
+            "first": 0,
+            "last": 0,
+            "observed_interval_seconds": 10.0394921,
+            "delta": 0,
+            "counter_monotonic": true,
+            "per_second": 0.0
+          },
+          "discarded_sample_writes": {
+            "first": 0,
+            "last": 1,
+            "observed_interval_seconds": 10.0394921,
+            "delta": 1,
+            "counter_monotonic": true,
+            "per_second": 0.09960663249090061
+          },
+          "topology_writes": {
+            "first": 0,
+            "last": 39,
+            "observed_interval_seconds": 10.0394921,
+            "delta": 39,
+            "counter_monotonic": true,
+            "per_second": 3.8846586671451235
+          },
+          "prune_calls": {
+            "first": 0,
+            "last": 1,
+            "observed_interval_seconds": 10.0394921,
+            "delta": 1,
+            "counter_monotonic": true,
+            "per_second": 0.09960663249090061
+          }
+        },
+        "throughput_eligible_interval": {
+          "operations": {
+            "first": 19,
+            "last": 39,
+            "observed_interval_seconds": 4.9999466009999995,
+            "delta": 20,
+            "counter_monotonic": true,
+            "per_second": 4.000042719656237
+          },
+          "codec_operations": {
+            "first": 0,
+            "last": 0,
+            "observed_interval_seconds": 4.9999466009999995,
+            "delta": 0,
+            "counter_monotonic": true,
+            "per_second": 0.0
+          },
+          "codec_bytes": {
+            "first": 0,
+            "last": 0,
+            "observed_interval_seconds": 4.9999466009999995,
+            "delta": 0,
+            "counter_monotonic": true,
+            "per_second": 0.0
+          },
+          "successful_cql_probes": {
+            "first": 54,
+            "last": 114,
+            "observed_interval_seconds": 4.9999466009999995,
+            "delta": 60,
+            "counter_monotonic": true,
+            "per_second": 12.000128158968714
+          },
+          "discarded_event_writes": {
+            "first": 0,
+            "last": 0,
+            "observed_interval_seconds": 4.9999466009999995,
+            "delta": 0,
+            "counter_monotonic": true,
+            "per_second": 0.0
+          },
+          "discarded_sample_writes": {
+            "first": 1,
+            "last": 1,
+            "observed_interval_seconds": 4.9999466009999995,
+            "delta": 0,
+            "counter_monotonic": true,
+            "per_second": 0.0
+          },
+          "topology_writes": {
+            "first": 19,
+            "last": 39,
+            "observed_interval_seconds": 4.9999466009999995,
+            "delta": 20,
+            "counter_monotonic": true,
+            "per_second": 4.000042719656237
+          },
+          "prune_calls": {
+            "first": 1,
+            "last": 1,
+            "observed_interval_seconds": 4.9999466009999995,
+            "delta": 0,
+            "counter_monotonic": true,
+            "per_second": 0.0
+          }
+        },
+        "payload_byte_observations": {
+          "input_snapshot_json_bytes": {
+            "n": 5,
+            "first": 393216,
+            "last": 393216,
+            "min": 393216,
+            "median": 393216,
+            "max": 393216,
+            "last_minus_first": 0
+          }
+        },
+        "post_stop_gc_diagnostic": [
+          {
+            "elapsed_seconds": 10.050770387,
+            "phase": "post_stop_gc",
+            "go_version": "go1.27.3",
+            "rss_bytes": 16666624,
+            "go_sys_bytes": 17668360,
+            "heap_alloc_bytes": 978920,
+            "heap_inuse_bytes": 1843200,
+            "heap_idle_bytes": 10215424,
+            "heap_released_bytes": 7168000,
+            "stack_inuse_bytes": 524288,
+            "stack_sys_bytes": 524288,
+            "heap_objects": 3158,
+            "next_gc_bytes": 4194304,
+            "allocator_live_allocations": 2,
+            "allocator_mapped_bytes": 1048576,
+            "allocator_mappings": 16,
+            "open_fds": 7,
+            "goroutines": 2,
+            "known_nodes": 3,
+            "monitor_subscriptions": 0,
+            "repository_incidents": 500,
+            "repository_topology_rows": 1,
+            "repository_topology_nodes": 3,
+            "repository_topology_incidents": 0,
+            "repository_history_rows": 0,
+            "repository_event_rows": 0,
+            "cql_probe_failures": 3,
+            "tcp_probe_failures": 1,
+            "probe_health_observations": 234,
+            "operations": 39,
+            "codec_operations": 0,
+            "codec_bytes": 0,
+            "successful_cql_probes": 114,
+            "discarded_event_writes": 0,
+            "discarded_sample_writes": 1,
+            "topology_writes": 39,
+            "prune_calls": 1,
+            "input_snapshot_json_bytes": 393216,
+            "operation_payload_bytes_min": 393216,
+            "operation_payload_bytes_max": 393216,
+            "warmup_seconds": 2,
+            "duration_seconds": 10,
+            "sample_interval_seconds": 5,
+            "configured_hz": 4,
+            "json_sse_get_hz": 1,
+            "json_sse_sse_clients": 2,
+            "nominal_snapshot_encodes_hz": 9,
+            "fixed_fixture_nodes": 3,
+            "fixed_fixture_incidents": 500,
+            "fixture_message_bytes": 256,
+            "num_gc": 15,
+            "natural_gc_age_seconds": 0.002297431,
+            "allocator_counters_enabled": true,
+            "operation_payload_bytes_measured": false,
+            "parent_process_only": true,
+            "heap_alloc_is_live_heap": false,
+            "sampler_allocations_included": true,
+            "measurement_gc_forced": true,
+            "probe_health_failed": true,
+            "slope_eligible": false,
+            "probe_health_last_failures": [
+              {
+                "node_index": 0,
+                "protocol": "cql",
+                "observations": 39,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.400063+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.655771+00:00",
+                  "latency_ns": 255708770
+                }
+              },
+              {
+                "node_index": 0,
+                "protocol": "tcp",
+                "observations": 39,
+                "failures": 0
+              },
+              {
+                "node_index": 1,
+                "protocol": "cql",
+                "observations": 39,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.403539+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.655475+00:00",
+                  "latency_ns": 251936021
+                }
+              },
+              {
+                "node_index": 1,
+                "protocol": "tcp",
+                "observations": 39,
+                "failures": 0
+              },
+              {
+                "node_index": 2,
+                "protocol": "cql",
+                "observations": 39,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.399829+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.654033+00:00",
+                  "latency_ns": 254204119
+                }
+              },
+              {
+                "node_index": 2,
+                "protocol": "tcp",
+                "observations": 39,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.654122+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.905410+00:00",
+                  "latency_ns": 251287944
+                }
+              }
+            ]
+          }
+        ],
+        "sample_series": [
+          {
+            "elapsed_seconds": 0.001035274,
+            "phase": "baseline",
+            "go_version": "go1.27.3",
+            "rss_bytes": 14344192,
+            "go_sys_bytes": 12622088,
+            "heap_alloc_bytes": 2070976,
+            "heap_inuse_bytes": 2744320,
+            "heap_idle_bytes": 5283840,
+            "heap_released_bytes": 3735552,
+            "stack_inuse_bytes": 360448,
+            "stack_sys_bytes": 360448,
+            "heap_objects": 2936,
+            "next_gc_bytes": 4194304,
+            "allocator_live_allocations": 2,
+            "allocator_mapped_bytes": 1048576,
+            "allocator_mappings": 16,
+            "open_fds": 11,
+            "goroutines": 6,
+            "known_nodes": 3,
+            "monitor_subscriptions": 0,
+            "repository_incidents": 500,
+            "repository_topology_rows": 1,
+            "repository_topology_nodes": 3,
+            "repository_topology_incidents": 0,
+            "repository_history_rows": 0,
+            "repository_event_rows": 0,
+            "cql_probe_failures": 0,
+            "tcp_probe_failures": 0,
+            "probe_health_observations": 0,
+            "operations": 0,
+            "codec_operations": 0,
+            "codec_bytes": 0,
+            "successful_cql_probes": 0,
+            "discarded_event_writes": 0,
+            "discarded_sample_writes": 0,
+            "topology_writes": 0,
+            "prune_calls": 0,
+            "input_snapshot_json_bytes": 393216,
+            "operation_payload_bytes_min": 393216,
+            "operation_payload_bytes_max": 393216,
+            "warmup_seconds": 2,
+            "duration_seconds": 10,
+            "sample_interval_seconds": 5,
+            "configured_hz": 4,
+            "json_sse_get_hz": 1,
+            "json_sse_sse_clients": 2,
+            "nominal_snapshot_encodes_hz": 9,
+            "fixed_fixture_nodes": 3,
+            "fixed_fixture_incidents": 500,
+            "fixture_message_bytes": 256,
+            "num_gc": 1,
+            "natural_gc_age_seconds": 0.008251734,
+            "allocator_counters_enabled": true,
+            "operation_payload_bytes_measured": false,
+            "parent_process_only": true,
+            "heap_alloc_is_live_heap": false,
+            "sampler_allocations_included": true,
+            "measurement_gc_forced": false,
+            "probe_health_failed": false,
+            "slope_eligible": false,
+            "probe_health_last_failures": [
+              {
+                "node_index": 0,
+                "protocol": "cql",
+                "observations": 0,
+                "failures": 0
+              },
+              {
+                "node_index": 0,
+                "protocol": "tcp",
+                "observations": 0,
+                "failures": 0
+              },
+              {
+                "node_index": 1,
+                "protocol": "cql",
+                "observations": 0,
+                "failures": 0
+              },
+              {
+                "node_index": 1,
+                "protocol": "tcp",
+                "observations": 0,
+                "failures": 0
+              },
+              {
+                "node_index": 2,
+                "protocol": "cql",
+                "observations": 0,
+                "failures": 0
+              },
+              {
+                "node_index": 2,
+                "protocol": "tcp",
+                "observations": 0,
+                "failures": 0
+              }
+            ]
+          },
+          {
+            "elapsed_seconds": 2.045956213,
+            "phase": "warmup_complete",
+            "go_version": "go1.27.3",
+            "rss_bytes": 16871424,
+            "go_sys_bytes": 13474056,
+            "heap_alloc_bytes": 3231840,
+            "heap_inuse_bytes": 4194304,
+            "heap_idle_bytes": 3670016,
+            "heap_released_bytes": 3088384,
+            "stack_inuse_bytes": 524288,
+            "stack_sys_bytes": 524288,
+            "heap_objects": 4662,
+            "next_gc_bytes": 4194304,
+            "allocator_live_allocations": 2,
+            "allocator_mapped_bytes": 1048576,
+            "allocator_mappings": 16,
+            "open_fds": 13,
+            "goroutines": 9,
+            "known_nodes": 3,
+            "monitor_subscriptions": 0,
+            "repository_incidents": 500,
+            "repository_topology_rows": 1,
+            "repository_topology_nodes": 3,
+            "repository_topology_incidents": 0,
+            "repository_history_rows": 0,
+            "repository_event_rows": 0,
+            "cql_probe_failures": 3,
+            "tcp_probe_failures": 1,
+            "probe_health_observations": 42,
+            "operations": 7,
+            "codec_operations": 0,
+            "codec_bytes": 0,
+            "successful_cql_probes": 18,
+            "discarded_event_writes": 0,
+            "discarded_sample_writes": 1,
+            "topology_writes": 7,
+            "prune_calls": 1,
+            "input_snapshot_json_bytes": 393216,
+            "operation_payload_bytes_min": 393216,
+            "operation_payload_bytes_max": 393216,
+            "warmup_seconds": 2,
+            "duration_seconds": 10,
+            "sample_interval_seconds": 5,
+            "configured_hz": 4,
+            "json_sse_get_hz": 1,
+            "json_sse_sse_clients": 2,
+            "nominal_snapshot_encodes_hz": 9,
+            "fixed_fixture_nodes": 3,
+            "fixed_fixture_incidents": 500,
+            "fixture_message_bytes": 256,
+            "num_gc": 3,
+            "natural_gc_age_seconds": 0.506231934,
+            "allocator_counters_enabled": true,
+            "operation_payload_bytes_measured": false,
+            "parent_process_only": true,
+            "heap_alloc_is_live_heap": false,
+            "sampler_allocations_included": true,
+            "measurement_gc_forced": false,
+            "probe_health_failed": true,
+            "slope_eligible": false,
+            "probe_health_last_failures": [
+              {
+                "node_index": 0,
+                "protocol": "cql",
+                "observations": 7,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.400063+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.655771+00:00",
+                  "latency_ns": 255708770
+                }
+              },
+              {
+                "node_index": 0,
+                "protocol": "tcp",
+                "observations": 7,
+                "failures": 0
+              },
+              {
+                "node_index": 1,
+                "protocol": "cql",
+                "observations": 7,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.403539+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.655475+00:00",
+                  "latency_ns": 251936021
+                }
+              },
+              {
+                "node_index": 1,
+                "protocol": "tcp",
+                "observations": 7,
+                "failures": 0
+              },
+              {
+                "node_index": 2,
+                "protocol": "cql",
+                "observations": 7,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.399829+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.654033+00:00",
+                  "latency_ns": 254204119
+                }
+              },
+              {
+                "node_index": 2,
+                "protocol": "tcp",
+                "observations": 7,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.654122+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.905410+00:00",
+                  "latency_ns": 251287944
+                }
+              }
+            ]
+          },
+          {
+            "elapsed_seconds": 5.040169898,
+            "phase": "sample",
+            "go_version": "go1.27.3",
+            "rss_bytes": 17113088,
+            "go_sys_bytes": 13474056,
+            "heap_alloc_bytes": 2019096,
+            "heap_inuse_bytes": 3006464,
+            "heap_idle_bytes": 4825088,
+            "heap_released_bytes": 3047424,
+            "stack_inuse_bytes": 557056,
+            "stack_sys_bytes": 557056,
+            "heap_objects": 3839,
+            "next_gc_bytes": 4194304,
+            "allocator_live_allocations": 2,
+            "allocator_mapped_bytes": 1048576,
+            "allocator_mappings": 16,
+            "open_fds": 13,
+            "goroutines": 9,
+            "known_nodes": 3,
+            "monitor_subscriptions": 0,
+            "repository_incidents": 500,
+            "repository_topology_rows": 1,
+            "repository_topology_nodes": 3,
+            "repository_topology_incidents": 0,
+            "repository_history_rows": 0,
+            "repository_event_rows": 0,
+            "cql_probe_failures": 3,
+            "tcp_probe_failures": 1,
+            "probe_health_observations": 114,
+            "operations": 19,
+            "codec_operations": 0,
+            "codec_bytes": 0,
+            "successful_cql_probes": 54,
+            "discarded_event_writes": 0,
+            "discarded_sample_writes": 1,
+            "topology_writes": 19,
+            "prune_calls": 1,
+            "input_snapshot_json_bytes": 393216,
+            "operation_payload_bytes_min": 393216,
+            "operation_payload_bytes_max": 393216,
+            "warmup_seconds": 2,
+            "duration_seconds": 10,
+            "sample_interval_seconds": 5,
+            "configured_hz": 4,
+            "json_sse_get_hz": 1,
+            "json_sse_sse_clients": 2,
+            "nominal_snapshot_encodes_hz": 9,
+            "fixed_fixture_nodes": 3,
+            "fixed_fixture_incidents": 500,
+            "fixture_message_bytes": 256,
+            "num_gc": 7,
+            "natural_gc_age_seconds": 0.247906537,
+            "allocator_counters_enabled": true,
+            "operation_payload_bytes_measured": false,
+            "parent_process_only": true,
+            "heap_alloc_is_live_heap": false,
+            "sampler_allocations_included": true,
+            "measurement_gc_forced": false,
+            "probe_health_failed": true,
+            "slope_eligible": true,
+            "probe_health_last_failures": [
+              {
+                "node_index": 0,
+                "protocol": "cql",
+                "observations": 19,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.400063+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.655771+00:00",
+                  "latency_ns": 255708770
+                }
+              },
+              {
+                "node_index": 0,
+                "protocol": "tcp",
+                "observations": 19,
+                "failures": 0
+              },
+              {
+                "node_index": 1,
+                "protocol": "cql",
+                "observations": 19,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.403539+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.655475+00:00",
+                  "latency_ns": 251936021
+                }
+              },
+              {
+                "node_index": 1,
+                "protocol": "tcp",
+                "observations": 19,
+                "failures": 0
+              },
+              {
+                "node_index": 2,
+                "protocol": "cql",
+                "observations": 19,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.399829+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.654033+00:00",
+                  "latency_ns": 254204119
+                }
+              },
+              {
+                "node_index": 2,
+                "protocol": "tcp",
+                "observations": 19,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.654122+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.905410+00:00",
+                  "latency_ns": 251287944
+                }
+              }
+            ]
+          },
+          {
+            "elapsed_seconds": 10.040116499,
+            "phase": "sample",
+            "go_version": "go1.27.3",
+            "rss_bytes": 16977920,
+            "go_sys_bytes": 13474056,
+            "heap_alloc_bytes": 2684472,
+            "heap_inuse_bytes": 3710976,
+            "heap_idle_bytes": 4087808,
+            "heap_released_bytes": 3268608,
+            "stack_inuse_bytes": 589824,
+            "stack_sys_bytes": 589824,
+            "heap_objects": 4442,
+            "next_gc_bytes": 4194304,
+            "allocator_live_allocations": 2,
+            "allocator_mapped_bytes": 1048576,
+            "allocator_mappings": 16,
+            "open_fds": 13,
+            "goroutines": 9,
+            "known_nodes": 3,
+            "monitor_subscriptions": 0,
+            "repository_incidents": 500,
+            "repository_topology_rows": 1,
+            "repository_topology_nodes": 3,
+            "repository_topology_incidents": 0,
+            "repository_history_rows": 0,
+            "repository_event_rows": 0,
+            "cql_probe_failures": 3,
+            "tcp_probe_failures": 1,
+            "probe_health_observations": 234,
+            "operations": 39,
+            "codec_operations": 0,
+            "codec_bytes": 0,
+            "successful_cql_probes": 114,
+            "discarded_event_writes": 0,
+            "discarded_sample_writes": 1,
+            "topology_writes": 39,
+            "prune_calls": 1,
+            "input_snapshot_json_bytes": 393216,
+            "operation_payload_bytes_min": 393216,
+            "operation_payload_bytes_max": 393216,
+            "warmup_seconds": 2,
+            "duration_seconds": 10,
+            "sample_interval_seconds": 5,
+            "configured_hz": 4,
+            "json_sse_get_hz": 1,
+            "json_sse_sse_clients": 2,
+            "nominal_snapshot_encodes_hz": 9,
+            "fixed_fixture_nodes": 3,
+            "fixed_fixture_incidents": 500,
+            "fixture_message_bytes": 256,
+            "num_gc": 13,
+            "natural_gc_age_seconds": 0.501422144,
+            "allocator_counters_enabled": true,
+            "operation_payload_bytes_measured": false,
+            "parent_process_only": true,
+            "heap_alloc_is_live_heap": false,
+            "sampler_allocations_included": true,
+            "measurement_gc_forced": false,
+            "probe_health_failed": true,
+            "slope_eligible": true,
+            "probe_health_last_failures": [
+              {
+                "node_index": 0,
+                "protocol": "cql",
+                "observations": 39,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.400063+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.655771+00:00",
+                  "latency_ns": 255708770
+                }
+              },
+              {
+                "node_index": 0,
+                "protocol": "tcp",
+                "observations": 39,
+                "failures": 0
+              },
+              {
+                "node_index": 1,
+                "protocol": "cql",
+                "observations": 39,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.403539+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.655475+00:00",
+                  "latency_ns": 251936021
+                }
+              },
+              {
+                "node_index": 1,
+                "protocol": "tcp",
+                "observations": 39,
+                "failures": 0
+              },
+              {
+                "node_index": 2,
+                "protocol": "cql",
+                "observations": 39,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.399829+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.654033+00:00",
+                  "latency_ns": 254204119
+                }
+              },
+              {
+                "node_index": 2,
+                "protocol": "tcp",
+                "observations": 39,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.654122+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.905410+00:00",
+                  "latency_ns": 251287944
+                }
+              }
+            ]
+          },
+          {
+            "elapsed_seconds": 10.040527374,
+            "phase": "end",
+            "go_version": "go1.27.3",
+            "rss_bytes": 16977920,
+            "go_sys_bytes": 13474056,
+            "heap_alloc_bytes": 2717680,
+            "heap_inuse_bytes": 3776512,
+            "heap_idle_bytes": 4022272,
+            "heap_released_bytes": 3268608,
+            "stack_inuse_bytes": 589824,
+            "stack_sys_bytes": 589824,
+            "heap_objects": 4642,
+            "next_gc_bytes": 4194304,
+            "allocator_live_allocations": 2,
+            "allocator_mapped_bytes": 1048576,
+            "allocator_mappings": 16,
+            "open_fds": 13,
+            "goroutines": 9,
+            "known_nodes": 3,
+            "monitor_subscriptions": 0,
+            "repository_incidents": 500,
+            "repository_topology_rows": 1,
+            "repository_topology_nodes": 3,
+            "repository_topology_incidents": 0,
+            "repository_history_rows": 0,
+            "repository_event_rows": 0,
+            "cql_probe_failures": 3,
+            "tcp_probe_failures": 1,
+            "probe_health_observations": 234,
+            "operations": 39,
+            "codec_operations": 0,
+            "codec_bytes": 0,
+            "successful_cql_probes": 114,
+            "discarded_event_writes": 0,
+            "discarded_sample_writes": 1,
+            "topology_writes": 39,
+            "prune_calls": 1,
+            "input_snapshot_json_bytes": 393216,
+            "operation_payload_bytes_min": 393216,
+            "operation_payload_bytes_max": 393216,
+            "warmup_seconds": 2,
+            "duration_seconds": 10,
+            "sample_interval_seconds": 5,
+            "configured_hz": 4,
+            "json_sse_get_hz": 1,
+            "json_sse_sse_clients": 2,
+            "nominal_snapshot_encodes_hz": 9,
+            "fixed_fixture_nodes": 3,
+            "fixed_fixture_incidents": 500,
+            "fixture_message_bytes": 256,
+            "num_gc": 13,
+            "natural_gc_age_seconds": 0.501830811,
+            "allocator_counters_enabled": true,
+            "operation_payload_bytes_measured": false,
+            "parent_process_only": true,
+            "heap_alloc_is_live_heap": false,
+            "sampler_allocations_included": true,
+            "measurement_gc_forced": false,
+            "probe_health_failed": true,
+            "slope_eligible": false,
+            "probe_health_last_failures": [
+              {
+                "node_index": 0,
+                "protocol": "cql",
+                "observations": 39,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.400063+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.655771+00:00",
+                  "latency_ns": 255708770
+                }
+              },
+              {
+                "node_index": 0,
+                "protocol": "tcp",
+                "observations": 39,
+                "failures": 0
+              },
+              {
+                "node_index": 1,
+                "protocol": "cql",
+                "observations": 39,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.403539+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.655475+00:00",
+                  "latency_ns": 251936021
+                }
+              },
+              {
+                "node_index": 1,
+                "protocol": "tcp",
+                "observations": 39,
+                "failures": 0
+              },
+              {
+                "node_index": 2,
+                "protocol": "cql",
+                "observations": 39,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.399829+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.654033+00:00",
+                  "latency_ns": 254204119
+                }
+              },
+              {
+                "node_index": 2,
+                "protocol": "tcp",
+                "observations": 39,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.654122+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.905410+00:00",
+                  "latency_ns": 251287944
+                }
+              }
+            ]
+          },
+          {
+            "elapsed_seconds": 10.050770387,
+            "phase": "post_stop_gc",
+            "go_version": "go1.27.3",
+            "rss_bytes": 16666624,
+            "go_sys_bytes": 17668360,
+            "heap_alloc_bytes": 978920,
+            "heap_inuse_bytes": 1843200,
+            "heap_idle_bytes": 10215424,
+            "heap_released_bytes": 7168000,
+            "stack_inuse_bytes": 524288,
+            "stack_sys_bytes": 524288,
+            "heap_objects": 3158,
+            "next_gc_bytes": 4194304,
+            "allocator_live_allocations": 2,
+            "allocator_mapped_bytes": 1048576,
+            "allocator_mappings": 16,
+            "open_fds": 7,
+            "goroutines": 2,
+            "known_nodes": 3,
+            "monitor_subscriptions": 0,
+            "repository_incidents": 500,
+            "repository_topology_rows": 1,
+            "repository_topology_nodes": 3,
+            "repository_topology_incidents": 0,
+            "repository_history_rows": 0,
+            "repository_event_rows": 0,
+            "cql_probe_failures": 3,
+            "tcp_probe_failures": 1,
+            "probe_health_observations": 234,
+            "operations": 39,
+            "codec_operations": 0,
+            "codec_bytes": 0,
+            "successful_cql_probes": 114,
+            "discarded_event_writes": 0,
+            "discarded_sample_writes": 1,
+            "topology_writes": 39,
+            "prune_calls": 1,
+            "input_snapshot_json_bytes": 393216,
+            "operation_payload_bytes_min": 393216,
+            "operation_payload_bytes_max": 393216,
+            "warmup_seconds": 2,
+            "duration_seconds": 10,
+            "sample_interval_seconds": 5,
+            "configured_hz": 4,
+            "json_sse_get_hz": 1,
+            "json_sse_sse_clients": 2,
+            "nominal_snapshot_encodes_hz": 9,
+            "fixed_fixture_nodes": 3,
+            "fixed_fixture_incidents": 500,
+            "fixture_message_bytes": 256,
+            "num_gc": 15,
+            "natural_gc_age_seconds": 0.002297431,
+            "allocator_counters_enabled": true,
+            "operation_payload_bytes_measured": false,
+            "parent_process_only": true,
+            "heap_alloc_is_live_heap": false,
+            "sampler_allocations_included": true,
+            "measurement_gc_forced": true,
+            "probe_health_failed": true,
+            "slope_eligible": false,
+            "probe_health_last_failures": [
+              {
+                "node_index": 0,
+                "protocol": "cql",
+                "observations": 39,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.400063+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.655771+00:00",
+                  "latency_ns": 255708770
+                }
+              },
+              {
+                "node_index": 0,
+                "protocol": "tcp",
+                "observations": 39,
+                "failures": 0
+              },
+              {
+                "node_index": 1,
+                "protocol": "cql",
+                "observations": 39,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.403539+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.655475+00:00",
+                  "latency_ns": 251936021
+                }
+              },
+              {
+                "node_index": 1,
+                "protocol": "tcp",
+                "observations": 39,
+                "failures": 0
+              },
+              {
+                "node_index": 2,
+                "protocol": "cql",
+                "observations": 39,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.399829+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.654033+00:00",
+                  "latency_ns": 254204119
+                }
+              },
+              {
+                "node_index": 2,
+                "protocol": "tcp",
+                "observations": 39,
+                "failures": 1,
+                "last_failure": {
+                  "phase": "dial",
+                  "attempted_at_utc": "2026-10-25T11:54:40.654122+00:00",
+                  "checked_at_utc": "2026-10-25T11:54:40.905410+00:00",
+                  "latency_ns": 251287944
+                }
+              }
+            ]
+          }
+        ],
+        "analysis_issues": [],
+        "inference": "Descriptive finite case only; no memory-leak resolution verdict is made."
+      },
+      {
+        "mode": "json_only",
+        "manifest_state": "pass",
+        "started_utc": "2026-10-25T11:54:51.028590+00:00",
+        "finished_utc": "2026-10-25T11:55:02.045420+00:00",
+        "manifest_exit_code": 0,
+        "planned_duration_seconds": 10,
+        "planned_warmup_seconds": 2,
+        "observed_manifest_wall_seconds": 11.016,
+        "case_completed_successfully": true,
+        "resource_workload_completed": true,
+        "probe_health_failed": false,
+        "analysis_evidence_usable": false,
+        "samples_total": 5,
+        "slope_eligible_samples": 1,
+        "eligible_start_seconds": 5.004777153,
+        "eligible_end_seconds": 5.004777153,
+        "last_third_start_seconds": 5.004777153,
+        "last_third_samples": 1,
+        "memory_statistics": {
+          "rss_bytes": {
+            "all_eligible": {
+              "n": 1,
+              "first": 16359424,
+              "last": 16359424,
+              "min": 16359424,
+              "median": 16359424,
+              "max": 16359424,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 16359424,
+              "last": 16359424,
+              "min": 16359424,
+              "median": 16359424,
+              "max": 16359424,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            }
+          },
+          "go_sys_bytes": {
+            "all_eligible": {
+              "n": 1,
+              "first": 17406216,
+              "last": 17406216,
+              "min": 17406216,
+              "median": 17406216,
+              "max": 17406216,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 17406216,
+              "last": 17406216,
+              "min": 17406216,
+              "median": 17406216,
+              "max": 17406216,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            }
+          },
+          "heap_alloc_bytes": {
+            "all_eligible": {
+              "n": 1,
+              "first": 3610184,
+              "last": 3610184,
+              "min": 3610184,
+              "median": 3610184,
+              "max": 3610184,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 3610184,
+              "last": 3610184,
+              "min": 3610184,
+              "median": 3610184,
+              "max": 3610184,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            }
+          },
+          "heap_inuse_bytes": {
+            "all_eligible": {
+              "n": 1,
+              "first": 4325376,
+              "last": 4325376,
+              "min": 4325376,
+              "median": 4325376,
+              "max": 4325376,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 4325376,
+              "last": 4325376,
+              "min": 4325376,
+              "median": 4325376,
+              "max": 4325376,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            }
+          },
+          "heap_idle_bytes": {
+            "all_eligible": {
+              "n": 1,
+              "first": 7897088,
+              "last": 7897088,
+              "min": 7897088,
+              "median": 7897088,
+              "max": 7897088,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 7897088,
+              "last": 7897088,
+              "min": 7897088,
+              "median": 7897088,
+              "max": 7897088,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            }
+          },
+          "heap_released_bytes": {
+            "all_eligible": {
+              "n": 1,
+              "first": 6938624,
+              "last": 6938624,
+              "min": 6938624,
+              "median": 6938624,
+              "max": 6938624,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 6938624,
+              "last": 6938624,
+              "min": 6938624,
+              "median": 6938624,
+              "max": 6938624,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            }
+          },
+          "stack_inuse_bytes": {
+            "all_eligible": {
+              "n": 1,
+              "first": 360448,
+              "last": 360448,
+              "min": 360448,
+              "median": 360448,
+              "max": 360448,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 360448,
+              "last": 360448,
+              "min": 360448,
+              "median": 360448,
+              "max": 360448,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            }
+          },
+          "stack_sys_bytes": {
+            "all_eligible": {
+              "n": 1,
+              "first": 360448,
+              "last": 360448,
+              "min": 360448,
+              "median": 360448,
+              "max": 360448,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 360448,
+              "last": 360448,
+              "min": 360448,
+              "median": 360448,
+              "max": 360448,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            }
+          },
+          "heap_objects": {
+            "all_eligible": {
+              "n": 1,
+              "first": 3068,
+              "last": 3068,
+              "min": 3068,
+              "median": 3068,
+              "max": 3068,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "count"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 3068,
+              "last": 3068,
+              "min": 3068,
+              "median": 3068,
+              "max": 3068,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "count"
+            }
+          },
+          "next_gc_bytes": {
+            "all_eligible": {
+              "n": 1,
+              "first": 4194304,
+              "last": 4194304,
+              "min": 4194304,
+              "median": 4194304,
+              "max": 4194304,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 4194304,
+              "last": 4194304,
+              "min": 4194304,
+              "median": 4194304,
+              "max": 4194304,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            }
+          },
+          "allocator_live_allocations": {
+            "all_eligible": {
+              "n": 1,
+              "first": 2,
+              "last": 2,
+              "min": 2,
+              "median": 2,
+              "max": 2,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "count"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 2,
+              "last": 2,
+              "min": 2,
+              "median": 2,
+              "max": 2,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "count"
+            }
+          },
+          "allocator_mapped_bytes": {
+            "all_eligible": {
+              "n": 1,
+              "first": 1048576,
+              "last": 1048576,
+              "min": 1048576,
+              "median": 1048576,
+              "max": 1048576,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 1048576,
+              "last": 1048576,
+              "min": 1048576,
+              "median": 1048576,
+              "max": 1048576,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "bytes"
+            }
+          },
+          "allocator_mappings": {
+            "all_eligible": {
+              "n": 1,
+              "first": 16,
+              "last": 16,
+              "min": 16,
+              "median": 16,
+              "max": 16,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "count"
+            },
+            "last_third": {
+              "n": 1,
+              "first": 16,
+              "last": 16,
+              "min": 16,
+              "median": 16,
+              "max": 16,
+              "last_minus_first": 0,
+              "ols_per_hour": null,
+              "unit": "count"
+            }
+          }
+        },
+        "natural_gc": {
+          "num_gc": {
+            "n": 1,
+            "first": 12,
+            "last": 12,
+            "min": 12,
+            "median": 12,
+            "max": 12,
+            "last_minus_first": 0
+          },
+          "num_gc_delta": 0,
+          "observed_sample_intervals_with_gc_progress": 0,
+          "age_seconds": {
+            "n": 1,
+            "first": 0.443473254,
+            "last": 0.443473254,
+            "min": 0.443473254,
+            "median": 0.443473254,
+            "max": 0.443473254,
+            "last_minus_first": 0.0
+          },
+          "heap_alloc_is_live_heap": false,
+          "note": "Natural-GC HeapAlloc and HeapObjects depend on GC phase; no forced GC occurs in eligible samples."
+        },
+        "observed_operating_bounds": {
+          "rss_bytes": {
+            "observed": {
+              "n": 4,
+              "first": 13955072,
+              "last": 17162240,
+              "min": 13955072,
+              "median": 16336896.0,
+              "max": 17162240,
+              "last_minus_first": 3207168
+            },
+            "configured_upper_limit": 268435456,
+            "observed_limit_exceeded": false
+          },
+          "allocator_mapped_bytes": {
+            "observed": {
+              "n": 4,
+              "first": 1048576,
+              "last": 1048576,
+              "min": 1048576,
+              "median": 1048576.0,
+              "max": 1048576,
+              "last_minus_first": 0
+            },
+            "configured_upper_limit": 134217728,
+            "observed_limit_exceeded": false
+          },
+          "open_fds": {
+            "observed": {
+              "n": 4,
+              "first": 7,
+              "last": 7,
+              "min": 7,
+              "median": 7.0,
+              "max": 7,
+              "last_minus_first": 0
+            },
+            "configured_upper_limit": 128,
+            "observed_limit_exceeded": false
+          },
+          "goroutines": {
+            "observed": {
+              "n": 4,
+              "first": 2,
+              "last": 2,
+              "min": 2,
+              "median": 2.0,
+              "max": 2,
+              "last_minus_first": 0
+            },
+            "configured_upper_limit": 512,
+            "observed_limit_exceeded": false
+          }
+        },
+        "observed_operating_resource_counts": {
+          "open_fds": {
+            "n": 4,
+            "first": 7,
+            "last": 7,
+            "min": 7,
+            "median": 7.0,
+            "max": 7,
+            "last_minus_first": 0
+          },
+          "goroutines": {
+            "n": 4,
+            "first": 2,
+            "last": 2,
+            "min": 2,
+            "median": 2.0,
+            "max": 2,
+            "last_minus_first": 0
+          },
+          "known_nodes": {
+            "n": 4,
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "median": 0.0,
+            "max": 0,
+            "last_minus_first": 0
+          },
+          "monitor_subscriptions": {
+            "n": 4,
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "median": 0.0,
+            "max": 0,
+            "last_minus_first": 0
+          },
+          "repository_incidents": {
+            "n": 4,
+            "first": 500,
+            "last": 500,
+            "min": 500,
+            "median": 500.0,
+            "max": 500,
+            "last_minus_first": 0
+          },
+          "repository_topology_rows": {
+            "n": 4,
+            "first": 1,
+            "last": 1,
+            "min": 1,
+            "median": 1.0,
+            "max": 1,
+            "last_minus_first": 0
+          },
+          "repository_topology_nodes": {
+            "n": 4,
+            "first": 3,
+            "last": 3,
+            "min": 3,
+            "median": 3.0,
+            "max": 3,
+            "last_minus_first": 0
+          },
+          "repository_topology_incidents": {
+            "n": 4,
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "median": 0.0,
+            "max": 0,
+            "last_minus_first": 0
+          },
+          "repository_history_rows": {
+            "n": 4,
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "median": 0.0,
+            "max": 0,
+            "last_minus_first": 0
+          },
+          "repository_event_rows": {
+            "n": 4,
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "median": 0.0,
+            "max": 0,
+            "last_minus_first": 0
+          },
+          "cql_probe_failures": {
+            "n": 4,
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "median": 0.0,
+            "max": 0,
+            "last_minus_first": 0
+          },
+          "tcp_probe_failures": {
+            "n": 4,
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "median": 0.0,
+            "max": 0,
+            "last_minus_first": 0
+          },
+          "probe_health_observations": {
+            "n": 4,
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "median": 0.0,
+            "max": 0,
+            "last_minus_first": 0
+          }
+        },
+        "throughput_operating_interval": {
+          "operations": {
+            "first": 0,
+            "last": 39,
+            "observed_interval_seconds": 10.006754934,
+            "delta": 39,
+            "counter_monotonic": true,
+            "per_second": 3.8973673540749467
+          },
+          "codec_operations": {
+            "first": 0,
+            "last": 90,
+            "observed_interval_seconds": 10.006754934,
+            "delta": 90,
+            "counter_monotonic": true,
+            "per_second": 8.993924663249878
+          },
+          "codec_bytes": {
+            "first": 0,
+            "last": 35389436,
+            "observed_interval_seconds": 10.006754934,
+            "delta": 35389436,
+            "counter_monotonic": true,
+            "per_second": 3536554.6806544787
+          },
+          "discarded_event_writes": {
+            "first": 0,
+            "last": 0,
+            "observed_interval_seconds": 10.006754934,
+            "delta": 0,
+            "counter_monotonic": true,
+            "per_second": 0.0
+          },
+          "discarded_sample_writes": {
+            "first": 0,
+            "last": 0,
+            "observed_interval_seconds": 10.006754934,
+            "delta": 0,
+            "counter_monotonic": true,
+            "per_second": 0.0
+          },
+          "topology_writes": {
+            "first": 0,
+            "last": 0,
+            "observed_interval_seconds": 10.006754934,
+            "delta": 0,
+            "counter_monotonic": true,
+            "per_second": 0.0
+          },
+          "prune_calls": {
+            "first": 0,
+            "last": 0,
+            "observed_interval_seconds": 10.006754934,
+            "delta": 0,
+            "counter_monotonic": true,
+            "per_second": 0.0
+          }
+        },
+        "throughput_eligible_interval": {
+          "operations": {
+            "first": 20,
+            "last": 20,
+            "observed_interval_seconds": 0.0,
+            "delta": 0,
+            "counter_monotonic": true,
+            "per_second": null
+          },
+          "codec_operations": {
+            "first": 45,
+            "last": 45,
+            "observed_interval_seconds": 0.0,
+            "delta": 0,
+            "counter_monotonic": true,
+            "per_second": null
+          },
+          "codec_bytes": {
+            "first": 17694720,
+            "last": 17694720,
+            "observed_interval_seconds": 0.0,
+            "delta": 0,
+            "counter_monotonic": true,
+            "per_second": null
+          },
+          "discarded_event_writes": {
+            "first": 0,
+            "last": 0,
+            "observed_interval_seconds": 0.0,
+            "delta": 0,
+            "counter_monotonic": true,
+            "per_second": null
+          },
+          "discarded_sample_writes": {
+            "first": 0,
+            "last": 0,
+            "observed_interval_seconds": 0.0,
+            "delta": 0,
+            "counter_monotonic": true,
+            "per_second": null
+          },
+          "topology_writes": {
+            "first": 0,
+            "last": 0,
+            "observed_interval_seconds": 0.0,
+            "delta": 0,
+            "counter_monotonic": true,
+            "per_second": null
+          },
+          "prune_calls": {
+            "first": 0,
+            "last": 0,
+            "observed_interval_seconds": 0.0,
+            "delta": 0,
+            "counter_monotonic": true,
+            "per_second": null
+          }
+        },
+        "payload_byte_observations": {
+          "input_snapshot_json_bytes": {
+            "n": 4,
+            "first": 393216,
+            "last": 393216,
+            "min": 393216,
+            "median": 393216.0,
+            "max": 393216,
+            "last_minus_first": 0
+          },
+          "operation_payload_bytes_min": {
+            "n": 4,
+            "first": 393216,
+            "last": 393215,
+            "min": 393215,
+            "median": 393216.0,
+            "max": 393216,
+            "last_minus_first": -1
+          },
+          "operation_payload_bytes_max": {
+            "n": 4,
+            "first": 393216,
+            "last": 393216,
+            "min": 393216,
+            "median": 393216.0,
+            "max": 393216,
+            "last_minus_first": 0
+          }
+        },
+        "post_stop_gc_diagnostic": [
+          {
+            "elapsed_seconds": 10.077215379,
+            "phase": "post_stop_gc",
+            "go_version": "go1.27.3",
+            "rss_bytes": 16842752,
+            "go_sys_bytes": 17406216,
+            "heap_alloc_bytes": 1377352,
+            "heap_inuse_bytes": 2105344,
+            "heap_idle_bytes": 10117120,
+            "heap_released_bytes": 6594560,
+            "stack_inuse_bytes": 360448,
+            "stack_sys_bytes": 360448,
+            "heap_objects": 2914,
+            "next_gc_bytes": 4194304,
+            "allocator_live_allocations": 2,
+            "allocator_mapped_bytes": 1048576,
+            "allocator_mappings": 16,
+            "open_fds": 7,
+            "goroutines": 2,
+            "known_nodes": 0,
+            "monitor_subscriptions": 0,
+            "repository_incidents": 500,
+            "repository_topology_rows": 1,
+            "repository_topology_nodes": 3,
+            "repository_topology_incidents": 0,
+            "repository_history_rows": 0,
+            "repository_event_rows": 0,
+            "cql_probe_failures": 0,
+            "tcp_probe_failures": 0,
+            "probe_health_observations": 0,
+            "operations": 39,
+            "codec_operations": 90,
+            "codec_bytes": 35389436,
+            "discarded_event_writes": 0,
+            "discarded_sample_writes": 0,
+            "topology_writes": 0,
+            "prune_calls": 0,
+            "input_snapshot_json_bytes": 393216,
+            "operation_payload_bytes_min": 393215,
+            "operation_payload_bytes_max": 393216,
+            "warmup_seconds": 2,
+            "duration_seconds": 10,
+            "sample_interval_seconds": 5,
+            "configured_hz": 4,
+            "json_sse_get_hz": 1,
+            "json_sse_sse_clients": 2,
+            "nominal_snapshot_encodes_hz": 9,
+            "fixed_fixture_nodes": 3,
+            "fixed_fixture_incidents": 500,
+            "fixture_message_bytes": 256,
+            "num_gc": 25,
+            "natural_gc_age_seconds": 0.001348008,
+            "allocator_counters_enabled": true,
+            "operation_payload_bytes_measured": true,
+            "parent_process_only": true,
+            "heap_alloc_is_live_heap": false,
+            "sampler_allocations_included": true,
+            "measurement_gc_forced": true,
+            "probe_health_failed": false,
+            "slope_eligible": false
+          }
+        ],
+        "sample_series": [
+          {
+            "elapsed_seconds": 0.001011045,
+            "phase": "baseline",
+            "go_version": "go1.27.3",
+            "rss_bytes": 13955072,
+            "go_sys_bytes": 16808200,
+            "heap_alloc_bytes": 2100952,
+            "heap_inuse_bytes": 2809856,
+            "heap_idle_bytes": 9412608,
+            "heap_released_bytes": 7798784,
+            "stack_inuse_bytes": 360448,
+            "stack_sys_bytes": 360448,
+            "heap_objects": 2848,
+            "next_gc_bytes": 4194304,
+            "allocator_live_allocations": 2,
+            "allocator_mapped_bytes": 1048576,
+            "allocator_mappings": 16,
+            "open_fds": 7,
+            "goroutines": 2,
+            "known_nodes": 0,
+            "monitor_subscriptions": 0,
+            "repository_incidents": 500,
+            "repository_topology_rows": 1,
+            "repository_topology_nodes": 3,
+            "repository_topology_incidents": 0,
+            "repository_history_rows": 0,
+            "repository_event_rows": 0,
+            "cql_probe_failures": 0,
+            "tcp_probe_failures": 0,
+            "probe_health_observations": 0,
+            "operations": 0,
+            "codec_operations": 0,
+            "codec_bytes": 0,
+            "discarded_event_writes": 0,
+            "discarded_sample_writes": 0,
+            "topology_writes": 0,
+            "prune_calls": 0,
+            "input_snapshot_json_bytes": 393216,
+            "operation_payload_bytes_min": 393216,
+            "operation_payload_bytes_max": 393216,
+            "warmup_seconds": 2,
+            "duration_seconds": 10,
+            "sample_interval_seconds": 5,
+            "configured_hz": 4,
+            "json_sse_get_hz": 1,
+            "json_sse_sse_clients": 2,
+            "nominal_snapshot_encodes_hz": 9,
+            "fixed_fixture_nodes": 3,
+            "fixed_fixture_incidents": 500,
+            "fixture_message_bytes": 256,
+            "num_gc": 1,
+            "natural_gc_age_seconds": 0.002161889,
+            "allocator_counters_enabled": true,
+            "operation_payload_bytes_measured": true,
+            "parent_process_only": true,
+            "heap_alloc_is_live_heap": false,
+            "sampler_allocations_included": true,
+            "measurement_gc_forced": false,
+            "probe_health_failed": false,
+            "slope_eligible": false
+          },
+          {
+            "elapsed_seconds": 2.01831044,
+            "phase": "warmup_complete",
+            "go_version": "go1.27.3",
+            "rss_bytes": 16314368,
+            "go_sys_bytes": 17406216,
+            "heap_alloc_bytes": 3279520,
+            "heap_inuse_bytes": 4030464,
+            "heap_idle_bytes": 8159232,
+            "heap_released_bytes": 6930432,
+            "stack_inuse_bytes": 393216,
+            "stack_sys_bytes": 393216,
+            "heap_objects": 3287,
+            "next_gc_bytes": 4194304,
+            "allocator_live_allocations": 2,
+            "allocator_mapped_bytes": 1048576,
+            "allocator_mappings": 16,
+            "open_fds": 7,
+            "goroutines": 2,
+            "known_nodes": 0,
+            "monitor_subscriptions": 0,
+            "repository_incidents": 500,
+            "repository_topology_rows": 1,
+            "repository_topology_nodes": 3,
+            "repository_topology_incidents": 0,
+            "repository_history_rows": 0,
+            "repository_event_rows": 0,
+            "cql_probe_failures": 0,
+            "tcp_probe_failures": 0,
+            "probe_health_observations": 0,
+            "operations": 7,
+            "codec_operations": 18,
+            "codec_bytes": 7077888,
+            "discarded_event_writes": 0,
+            "discarded_sample_writes": 0,
+            "topology_writes": 0,
+            "prune_calls": 0,
+            "input_snapshot_json_bytes": 393216,
+            "operation_payload_bytes_min": 393216,
+            "operation_payload_bytes_max": 393216,
+            "warmup_seconds": 2,
+            "duration_seconds": 10,
+            "sample_interval_seconds": 5,
+            "configured_hz": 4,
+            "json_sse_get_hz": 1,
+            "json_sse_sse_clients": 2,
+            "nominal_snapshot_encodes_hz": 9,
+            "fixed_fixture_nodes": 3,
+            "fixed_fixture_incidents": 500,
+            "fixture_message_bytes": 256,
+            "num_gc": 5,
+            "natural_gc_age_seconds": 0.236246207,
+            "allocator_counters_enabled": true,
+            "operation_payload_bytes_measured": true,
+            "parent_process_only": true,
+            "heap_alloc_is_live_heap": false,
+            "sampler_allocations_included": true,
+            "measurement_gc_forced": false,
+            "probe_health_failed": false,
+            "slope_eligible": false
+          },
+          {
+            "elapsed_seconds": 5.004777153,
+            "phase": "sample",
+            "go_version": "go1.27.3",
+            "rss_bytes": 16359424,
+            "go_sys_bytes": 17406216,
+            "heap_alloc_bytes": 3610184,
+            "heap_inuse_bytes": 4325376,
+            "heap_idle_bytes": 7897088,
+            "heap_released_bytes": 6938624,
+            "stack_inuse_bytes": 360448,
+            "stack_sys_bytes": 360448,
+            "heap_objects": 3068,
+            "next_gc_bytes": 4194304,
+            "allocator_live_allocations": 2,
+            "allocator_mapped_bytes": 1048576,
+            "allocator_mappings": 16,
+            "open_fds": 7,
+            "goroutines": 2,
+            "known_nodes": 0,
+            "monitor_subscriptions": 0,
+            "repository_incidents": 500,
+            "repository_topology_rows": 1,
+            "repository_topology_nodes": 3,
+            "repository_topology_incidents": 0,
+            "repository_history_rows": 0,
+            "repository_event_rows": 0,
+            "cql_probe_failures": 0,
+            "tcp_probe_failures": 0,
+            "probe_health_observations": 0,
+            "operations": 20,
+            "codec_operations": 45,
+            "codec_bytes": 17694720,
+            "discarded_event_writes": 0,
+            "discarded_sample_writes": 0,
+            "topology_writes": 0,
+            "prune_calls": 0,
+            "input_snapshot_json_bytes": 393216,
+            "operation_payload_bytes_min": 393216,
+            "operation_payload_bytes_max": 393216,
+            "warmup_seconds": 2,
+            "duration_seconds": 10,
+            "sample_interval_seconds": 5,
+            "configured_hz": 4,
+            "json_sse_get_hz": 1,
+            "json_sse_sse_clients": 2,
+            "nominal_snapshot_encodes_hz": 9,
+            "fixed_fixture_nodes": 3,
+            "fixed_fixture_incidents": 500,
+            "fixture_message_bytes": 256,
+            "num_gc": 12,
+            "natural_gc_age_seconds": 0.443473254,
+            "allocator_counters_enabled": true,
+            "operation_payload_bytes_measured": true,
+            "parent_process_only": true,
+            "heap_alloc_is_live_heap": false,
+            "sampler_allocations_included": true,
+            "measurement_gc_forced": false,
+            "probe_health_failed": false,
+            "slope_eligible": true
+          },
+          {
+            "elapsed_seconds": 10.007765979,
+            "phase": "end",
+            "go_version": "go1.27.3",
+            "rss_bytes": 17162240,
+            "go_sys_bytes": 17406216,
+            "heap_alloc_bytes": 4952888,
+            "heap_inuse_bytes": 5693440,
+            "heap_idle_bytes": 6496256,
+            "heap_released_bytes": 6201344,
+            "stack_inuse_bytes": 360448,
+            "stack_sys_bytes": 360448,
+            "heap_objects": 3122,
+            "next_gc_bytes": 5090160,
+            "allocator_live_allocations": 2,
+            "allocator_mapped_bytes": 1048576,
+            "allocator_mappings": 16,
+            "open_fds": 7,
+            "goroutines": 2,
+            "known_nodes": 0,
+            "monitor_subscriptions": 0,
+            "repository_incidents": 500,
+            "repository_topology_rows": 1,
+            "repository_topology_nodes": 3,
+            "repository_topology_incidents": 0,
+            "repository_history_rows": 0,
+            "repository_event_rows": 0,
+            "cql_probe_failures": 0,
+            "tcp_probe_failures": 0,
+            "probe_health_observations": 0,
+            "operations": 39,
+            "codec_operations": 90,
+            "codec_bytes": 35389436,
+            "discarded_event_writes": 0,
+            "discarded_sample_writes": 0,
+            "topology_writes": 0,
+            "prune_calls": 0,
+            "input_snapshot_json_bytes": 393216,
+            "operation_payload_bytes_min": 393215,
+            "operation_payload_bytes_max": 393216,
+            "warmup_seconds": 2,
+            "duration_seconds": 10,
+            "sample_interval_seconds": 5,
+            "configured_hz": 4,
+            "json_sse_get_hz": 1,
+            "json_sse_sse_clients": 2,
+            "nominal_snapshot_encodes_hz": 9,
+            "fixed_fixture_nodes": 3,
+            "fixed_fixture_incidents": 500,
+            "fixture_message_bytes": 256,
+            "num_gc": 23,
+            "natural_gc_age_seconds": 0.460951238,
+            "allocator_counters_enabled": true,
+            "operation_payload_bytes_measured": true,
+            "parent_process_only": true,
+            "heap_alloc_is_live_heap": false,
+            "sampler_allocations_included": true,
+            "measurement_gc_forced": false,
+            "probe_health_failed": false,
+            "slope_eligible": false
+          },
+          {
+            "elapsed_seconds": 10.077215379,
+            "phase": "post_stop_gc",
+            "go_version": "go1.27.3",
+            "rss_bytes": 16842752,
+            "go_sys_bytes": 17406216,
+            "heap_alloc_bytes": 1377352,
+            "heap_inuse_bytes": 2105344,
+            "heap_idle_bytes": 10117120,
+            "heap_released_bytes": 6594560,
+            "stack_inuse_bytes": 360448,
+            "stack_sys_bytes": 360448,
+            "heap_objects": 2914,
+            "next_gc_bytes": 4194304,
+            "allocator_live_allocations": 2,
+            "allocator_mapped_bytes": 1048576,
+            "allocator_mappings": 16,
+            "open_fds": 7,
+            "goroutines": 2,
+            "known_nodes": 0,
+            "monitor_subscriptions": 0,
+            "repository_incidents": 500,
+            "repository_topology_rows": 1,
+            "repository_topology_nodes": 3,
+            "repository_topology_incidents": 0,
+            "repository_history_rows": 0,
+            "repository_event_rows": 0,
+            "cql_probe_failures": 0,
+            "tcp_probe_failures": 0,
+            "probe_health_observations": 0,
+            "operations": 39,
+            "codec_operations": 90,
+            "codec_bytes": 35389436,
+            "discarded_event_writes": 0,
+            "discarded_sample_writes": 0,
+            "topology_writes": 0,
+            "prune_calls": 0,
+            "input_snapshot_json_bytes": 393216,
+            "operation_payload_bytes_min": 393215,
+            "operation_payload_bytes_max": 393216,
+            "warmup_seconds": 2,
+            "duration_seconds": 10,
+            "sample_interval_seconds": 5,
+            "configured_hz": 4,
+            "json_sse_get_hz": 1,
+            "json_sse_sse_clients": 2,
+            "nominal_snapshot_encodes_hz": 9,
+            "fixed_fixture_nodes": 3,
+            "fixed_fixture_incidents": 500,
+            "fixture_message_bytes": 256,
+            "num_gc": 25,
+            "natural_gc_age_seconds": 0.001348008,
+            "allocator_counters_enabled": true,
+            "operation_payload_bytes_measured": true,
+            "parent_process_only": true,
+            "heap_alloc_is_live_heap": false,
+            "sampler_allocations_included": true,
+            "measurement_gc_forced": true,
+            "probe_health_failed": false,
+            "slope_eligible": false
+          }
+        ],
+        "analysis_issues": [
+          {
+            "code": "insufficient_slope_eligible_samples"
+          }
+        ],
+        "inference": "Descriptive finite case only; no memory-leak resolution verdict is made."
+      }
+    ],
+    "analysis_issues": [],
+    "conclusion": "Completed workload checks are not a week-scale memory acceptance verdict.",
+    "limitations": [
+      "Only allowlisted numeric telemetry, case/state metadata and hashes are exported; no raw URLs/PIDs/paths/tokens/logs/profiles.",
+      "Only explicit slope_eligible sample rows without forced GC enter OLS; post-stop GC is a separate diagnostic.",
+      "Last-third means the final third of each observed eligible interval; partial cases have shorter intervals and remain incomplete.",
+      "OLS is descriptive with correlated samples and GC phase; no confidence interval, causal attribution or automatic leak verdict.",
+      "HeapAlloc/HeapObjects under natural GC are not an exact retained/live-object measurement.",
+      "Native mapped bytes include allocator pools and are not RSS; allocation count is not requested live-byte count.",
+      "RSS minus GoSys is not a native allocator measurement; per-metric trends must be interpreted jointly.",
+      "External client/receiver RSS is separate and is never added to measured server RSS.",
+      "Observed sampled bounds can miss transient peaks; failed, interrupted and unrun cases remain visible.",
+      "Different payload bytes, operation rates and case combinations can confound comparisons; generic full/compact SQLite modes have different stored semantics.",
+      "json_sse has no direct server encode counter; successful external SSE/GET counters describe received work, not all server encoding attempts.",
+      "Sampler/runtime/fixture allocations are included; no finite isolation result establishes resolution of a weeks-long production issue."
+    ]
+  },
+  "controller_exit_code": 2,
+  "historical_cases_reclassified": false,
+  "timeout_ms": 200,
+  "injected_getsockopt_delay_ms": 250,
+  "injection_scope": "first matching syscall per tracee/thread; multiple calls may be delayed",
+  "noninjected_trace": {
+    "seconds": 20,
+    "refreshes": 80,
+    "accepted": 480,
+    "supported": 240,
+    "fixture_non_eof_read_failures": 0,
+    "fixture_write_failures": 0,
+    "connect_to_so_error_count": 481,
+    "connect_to_so_error_p50_ms": 0.5700588226318359,
+    "connect_to_so_error_max_ms": 20.478010177612305,
+    "diagnostic_only": true
+  },
+  "before_injection": {
+    "test_resource_completed": false,
+    "test_failed": true,
+    "elapsed_seconds": 0.88,
+    "accepted": 6,
+    "supported": 0,
+    "fixture_non_eof_read_failures": 0,
+    "fixture_write_failures": 0
+  },
+  "runner_contract_tests_passed": 4,
+  "tracker_unit_tests_passed": 2,
+  "tracker_race_passed": true,
+  "before_marked_so_error_delays": 4,
+  "after_marked_so_error_delays": 5,
+  "save_only_benchmark": [
+    {
+      "variant": "full",
+      "iterations": 681,
+      "input_bytes": 393216,
+      "payload_bytes": 393216,
+      "startup_loads_per_fresh_benchmark": 1.0,
+      "go_bytes_per_save": 1014019,
+      "go_allocs_per_save": 48
+    },
+    {
+      "variant": "compact",
+      "iterations": 32791,
+      "input_bytes": 393216,
+      "payload_bytes": 2970,
+      "startup_loads_per_fresh_benchmark": 1.0,
+      "go_bytes_per_save": 10488,
+      "go_allocs_per_save": 21
+    }
+  ],
+  "supplemental_case_seconds_conservative": 43.046,
+  "all_memory_and_diagnostic_case_seconds": 5629.327
+}

@@ -1,0 +1,11 @@
+# Synthetic example only. Automatic detection reads the local Scylla config.
+# Keep credentials in /etc/scyllascope/secrets.env (never commit that file).
+cluster_name: example-cluster
+node_id: demo-a
+node_name: Demo A
+listen: 127.0.0.1:8091
+local_address: 127.0.0.1
+notifications:
+  # All observers send to every HA Alertmanager member. See docs/NOTIFICATIONS.md.
+  alertmanager_urls: [http://127.0.0.1:9093]
+  retry_interval: 1m

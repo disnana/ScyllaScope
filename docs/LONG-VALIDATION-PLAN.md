@@ -1,0 +1,27 @@
+# 継続レビューの試験設計
+
+目的は、短い試験の開始/終了値だけでは分からない保持の増加と、通知失敗・ノード入れ替え時の資源上限を観測することです。本番には接続しません。
+
+- 60分の単一collector/SQLite/alert engineプロセス。途中再起動でリークを隠さない。
+- 最初に4096件の永続pendingと600件の既知未復旧履歴を投入。表示の500件working setを開始前から満たし、表示件数増加による正当なheap増大とリークを分ける。128件のキューより多い未処理作業を通知先503/復帰へ流す。
+- 250msごとの実collector更新、5秒ごとの合成ノード入れ替え、1分ごと10秒のdiscovery失敗、2分ごと45秒の通知先503。実SQLite履歴保存・prune・実認証HTTP/SSE再接続を同時実行。
+- 最初の5分をウォームアップ。30秒ごとに明示GC後のheap allocation、heap objects、heap in-use、RSS、FD/goroutine、known node数、queue/inflight/attempt/counter数を採取。
+- 5分・30分・終了時にheap profileを非公開の一時ディレクトリへ保存。後半の回帰傾きと保持オブジェクトの種類を調べる。
+- queue<=128、attempt記録<=2048、known<=2×max_nodesを実行中に確認。worker並列化のinflight上限と500件処理は別の回帰試験で確認。
+- 初期値まで戻ることを合格条件にしない。後半に持続増加が見える場合は、その要因と未解決事項を報告。
+
+この試験は合成discoveryとloopbackのネットワークfixtureを使用します。CQL native session、OSの本物のサービス管理、実クラスタの数週間の稼働とは区別します。別に隔離ScyllaDBの統合試験と最終HEADのbuild/test/race/browser/PR CIを実施します。60分を数週間の代用とは扱いません。
+
+独立した試験設計レビューで確認した限定: 本soakの通知先は即時503/204であり、ハングする宛先とAlertmanager HAは別の520件回帰/実HA統合で検証する。履歴保持168時間のため、通常サンプルと未復旧履歴はこの1時間では期限切れにならずDB上では増加する。prune関数の呼出を、通常履歴の実時間の期限切れ検証と読み替えない。終了値はHTTP/SSE停止とidle接続解放後なので、稼働中sampleの傾きとは区別する。loopback失敗probeは実CQL driver/TLS/metadataの長期割り当てを代表しない。
+
+さらに、500件の表示数が一定でも、空messageのseed行から実probe失敗のmessageを持つ新しい行へ置き換わるため、シリアライズされた表示payloadのバイト数は同一ではない。SSE読取バッファ/JSON作業領域の段階的増大はそれだけでリークと判定しない。sampled heap profileのinuse_objectsは推定値であり、MemStats.HeapObjectsの厳密な件数と混同しない。記録されたSSE受信数・GET数・更新回数も確認して負荷が成立したことを評価する。
+
+PASSの意味は負荷/資源境界チェックの成功に限る。傾き・保持オブジェクトの合否閾値や統計的有意性をテストへ仮定していない。`durable_work`は通知済みactiveも含む作業対象件数であり「未送信件数」とは呼ばない。`seed_pending==0`は初期4096件の処理完了だけを示す。
+
+## 追加の比較実験
+
+初回の長時間測定でretry attempt件数がウォームアップ後も増加し、コードを再確認すると2048件到達時のみ期限切れを掃除していた。上限付きの不要保持であり、実環境の微増の主因とは未確定。少数件でも毎Evaluateで期限切れ非inflightだけを削除する1行の修正を行い、期限前throttle/inflightを保つ回帰を追加する。既に実行中の変更前60分測定は比較記録として完了させ、同じ固定負荷・Go・GOMEMLIMITで修正後60分を別プロセスで並行測定する。二つのDB/profile出力は分離する。プロセス間のCPU競合とsampled profileの揺らぎがあるため、厳密な性能ベンチマークではなく保持件数と稼働中傾向の比較とする。
+
+短い追加の隔離Scylla認証/TLS試験が旧run約27〜29分・新run約7〜9分付近で同じホストのCPUを利用した（1CPU/384MiBのfixture、計約20秒）。RSSは対象Goプロセス自身の/proc値であり他processのRSSは加算しないが、CPU競合がsample時の作業領域に影響し得る。厳密な制御性能比較ではないことを最終報告にも記載する。
+
+後半の追加観測: 旧run約54分/新run約34分から、同じ隔離Goプロセスの認証済み `/api/v1/runtime` を約50秒間隔で読む。Go Sys、heap idle/releasedとRSSを補足する。これは自然GC中の値で、明示GC直後のmain sampleとは混ぜない。API portは自分が起動した固定名test binaryの所有listen socketだけから選び、一般のホスト/運用サービスはprobeしない。初期区間のidle/releasedは未採取で、後半の補助証拠に限定する。

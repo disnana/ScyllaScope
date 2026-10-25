@@ -1,0 +1,104 @@
+{
+  "date": "2026-10-25",
+  "scope": "disposable local single-node fixture; no production connection or data",
+  "toolchain": "go1.27.3 linux/amd64",
+  "image": "scylladb/scylla:6.2.3",
+  "image_digest": "sha256:2366233080ba65622b9ed1b4588709141c4456efdf923809f012b3711b513006",
+  "image_compressed_bytes": 297166762,
+  "configuration": {
+    "shards": 1,
+    "scylla_memory": "384MiB",
+    "container_memory_limit": "768MiB",
+    "container_cpu_limit": 1,
+    "developer_mode": true,
+    "reactor": "epoll",
+    "seed_exposure": "loopback only",
+    "persistent_operational_volume": false
+  },
+  "environment_constraints": [
+    "Ordinary sandbox denied the Docker socket; the explicitly local Docker socket succeeded using authorized escalated execution.",
+    "No pre-existing Scylla image or fixture was available.",
+    "Seastar saw 500000000 physical bytes and rejected the initial 1GiB fixture configuration. The disposable fixture was recreated once at 384MiB and started successfully.",
+    "Docker advertised a bridge identity different from the loopback seed. The production host filter correctly rejected it until the fixture's verified local Docker network identity was supplied as LocalAddress; the host filter was not weakened."
+  ],
+  "tests": [
+    "Real production CQL adapter Query of system.local",
+    "Real system.cluster_status Discover returning one fixture node",
+    "Pre-canceled discovery context rejected",
+    "Query fails while disposable database is stopped within the failure budget",
+    "Same production adapter reconnects successfully after database restart",
+    "Query after adapter Close is rejected"
+  ],
+  "normal_result": {
+    "status": "PASS",
+    "package_seconds": 9.176
+  },
+  "race_result": {
+    "status": "PASS",
+    "package_seconds": 10.538,
+    "race_detected": false
+  },
+  "adapter_defects_reproduced": [],
+  "not_tested": [
+    "cancellation during initial session creation",
+    "multi-node topology and partitions",
+    "versions other than the pinned 6.2.3 image",
+    "long-duration CQL allocation behavior",
+    "mutual TLS and client certificate authorization",
+    "certificate revocation or rotation",
+    "operational authentication/TLS configuration"
+  ],
+  "cleanup": "The dedicated fixture container was removed and absence was verified; downloaded image retained as a development cache.",
+  "reproduction": "tests/integration/README.md",
+  "raw_logs_published": false,
+  "endpoint_guard": {
+    "before_initial_session": true,
+    "checks": [
+      "explicit loopback seed",
+      "disposable name and isolated label",
+      "9042/tcp published HostIP values are all literal loopback",
+      "seed IP/port matches verified fixture binding"
+    ],
+    "pure_regression_cases": 12,
+    "result": "PASS under race detector"
+  },
+  "guarded_race_result": {
+    "status": "PASS",
+    "package_seconds": 10.896,
+    "race_detected": false,
+    "container_removed_after_run": true
+  },
+  "authenticated_tls_fixture": {
+    "status": "PASS",
+    "race_detected": false,
+    "package_seconds": 7.519,
+    "top_level_cases": 1,
+    "negative_subtests": 4,
+    "container_owned_by_test": true,
+    "loopback_port_mapping_verified_before_client_creation": true,
+    "private_material": "CA, RSA leaf/key, wrong CA and dedicated YAML generated inside t.TempDir, mounted read-only; never committed",
+    "certificate_SAN": [
+      "scylla.fixture.invalid",
+      "127.0.0.1"
+    ],
+    "host_trust_modified": false,
+    "authenticator": "PasswordAuthenticator",
+    "authorizer": "CassandraAuthorizer",
+    "credentials": "documented default superuser of this brand-new disposable image only",
+    "positive_controls": [
+      "trusted fixture CA plus matching synthetic hostname succeeds",
+      "fresh valid connection after negative cases succeeds"
+    ],
+    "negative_cases": [
+      "wrong password rejected",
+      "missing credentials rejected",
+      "wrong CA rejected as unknown authority",
+      "wrong hostname rejected as SAN mismatch"
+    ],
+    "container_removed_after_run": true,
+    "reproduction": "SCYLLASCOPE_AUTH_TLS_INTEGRATION=1 go test -race -timeout=5m -count=1 -v ./tests/integration -run ^TestDisposableScyllaAuthenticationTLS$",
+    "earlier_pass_package_seconds": 13.253,
+    "private_material_removed_after_run": true,
+    "runtime_code_changed": false
+  }
+}

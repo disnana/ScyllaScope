@@ -1,0 +1,23 @@
+Sampled profile difference from natural-GC warmup to end; excludes client and post-stop GC.
+Cumulative alloc_space is allocation churn, not live memory or RSS. Inuse depends on GC phase.
+
+File: scyllascope-isolation-framing.test
+Build ID: 521794d5e7b2bae845e048351d10d501f336c2f4
+Type: alloc_space
+Time: 2026-10-25 11:23:57 UTC
+Showing nodes accounting for 933478703B, 98.37% of 948922841B total
+Dropped 52 nodes (cum <= 4744614B)
+Showing top 12 nodes out of 31
+      flat  flat%   sum%        cum   cum%
+636438924B 67.07% 67.07% 636438924B 67.07%  bytes.Clone (inline)
+253749794B 26.74% 93.81% 253749794B 26.74%  slices.Clone[go.shape.[]scyllascope/internal/model.Incident,go.shape.6657139452673524fd6c10928995354c23d94e32dfced1d1abc166c223b5f1da] (inline)
+ 15863583B  1.67% 95.48%  15863583B  1.67%  time.appendInt
+ 13433456B  1.42% 96.90%  13433456B  1.42%  slices.Grow[go.shape.[]uint8,go.shape.uint8] (inline)
+ 12419410B  1.31% 98.21%  28282993B  2.98%  encoding/json/jsontext.(*encoderState).AppendRaw
+  1573536B  0.17% 98.37% 784837427B 82.71%  scyllascope/internal/api.(*Server).stream.func3
+         0     0% 98.37% 679728909B 71.63%  encoding/json.Marshal (inline)
+         0     0% 98.37%  13433456B  1.42%  encoding/json/internal/jsonwire.AppendQuote
+         0     0% 98.37%  15863583B  1.67%  encoding/json/v2.(*timeArshaler).appendMarshal
+         0     0% 98.37% 679728909B 71.63%  encoding/json/v2.Marshal
+         0     0% 98.37%  41716449B  4.40%  encoding/json/v2.makeSliceArshaler.func2
+         0     0% 98.37%  13433456B  1.42%  encoding/json/v2.makeStringArshaler.func1

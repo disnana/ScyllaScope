@@ -1,0 +1,79 @@
+name: validate
+on: [pull_request, workflow_dispatch]
+concurrency:
+  group: validate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify and reproduce the bundled frontend
+        run: |
+          (cd internal/api/static && sha256sum --check ui-manifest.sha256)
+          cp internal/api/static/ui-manifest.sha256 /tmp/frontend-before.sha256
+          node web/build.mjs
+          diff -u /tmp/frontend-before.sha256 internal/api/static/ui-manifest.sha256
+          node --test web/test/*.test.mjs
+      - name: Build preflight failure regressions
+        run: python3 tools/test_build_gate.py
+      - name: Isolation health/resource classification regressions
+        run: |
+          python3 tools/test_isolation_runner.py
+          go test -race -tags=memory.counters -run '^TestIsolationProbe' -count=1 ./internal/monitor
+      - name: Full dependency tests and production build
+        env:
+          SCYLLASCOPE_RACE_TESTS: '1'
+        run: ./build.sh
+      - name: Compile for both deployed CPU architectures
+        run: |
+          mkdir -p bin
+          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -o bin/scyllascope-linux-amd64 ./cmd/scyllascope
+          GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -trimpath -o bin/scyllascope-linux-arm64 ./cmd/scyllascope
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser test tools
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Browser regressions (real API/SSE, fixture DB)
+        run: |
+          go build -o /tmp/scyllascope-demo ./cmd/devserver
+          /tmp/scyllascope-demo > /tmp/scyllascope-demo.log 2>&1 &
+          DEMO_PID=$!
+          trap 'kill "$DEMO_PID" || true' EXIT
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8765/healthz && break || sleep 1; done
+          python tests/e2e/test_browser.py
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-artifacts
+          path: |
+            test-results/
+            bin/
+            go.sum
+            BUILD-VERIFIED.sha256
+  vulnerability-scan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: false
+      - run: go mod tidy
+      - run: go install golang.org/x/vuln/cmd/govulncheck@latest
+      - run: govulncheck ./...

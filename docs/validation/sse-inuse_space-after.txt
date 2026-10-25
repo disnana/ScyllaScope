@@ -1,0 +1,22 @@
+Sampled profile difference from natural-GC warmup to end; excludes client and post-stop GC.
+Cumulative alloc_space is allocation churn, not live memory or RSS. Inuse depends on GC phase.
+
+File: scyllascope-isolation-framing.test
+Build ID: 521794d5e7b2bae845e048351d10d501f336c2f4
+Type: inuse_space
+Time: 2026-10-25 11:23:57 UTC
+Showing nodes accounting for -416808B, 15.87% of 2626106B total
+Showing top 12 nodes out of 23
+      flat  flat%   sum%        cum   cum%
+  -776213B 29.56% 29.56%   -776213B 29.56%  encoding/json/jsontext.(*encoderState).AppendRaw
+  -745244B 28.38% 57.94%   -745244B 28.38%  bytes.Clone (inline)
+   579337B 22.06% 35.88%    579337B 22.06%  slices.Clone[go.shape.[]scyllascope/internal/model.Incident,go.shape.6657139452673524fd6c10928995354c23d94e32dfced1d1abc166c223b5f1da]
+   525312B 20.00% 15.87%    525312B 20.00%  bufio.NewWriterSize (inline)
+         0     0% 15.87%  -1521457B 57.94%  encoding/json.Marshal (inline)
+         0     0% 15.87%  -1521457B 57.94%  encoding/json/v2.Marshal
+         0     0% 15.87%   -776213B 29.56%  encoding/json/v2.makeSliceArshaler.func2
+         0     0% 15.87%   -776213B 29.56%  encoding/json/v2.makeStructArshaler.func2
+         0     0% 15.87%   -776213B 29.56%  encoding/json/v2.makeTimeArshaler.func3
+         0     0% 15.87%   -776213B 29.56%  encoding/json/v2.marshalEncode
+         0     0% 15.87%  -1521457B 57.94%  net/http.(*ServeMux).ServeHTTP
+         0     0% 15.87%    525312B 20.00%  net/http.(*conn).readRequest

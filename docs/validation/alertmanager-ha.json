@@ -1,0 +1,34 @@
+{
+  "result": "PASS",
+  "alertmanager_version": "0.28.1",
+  "processes": 2,
+  "initial_firing_notifications": 1,
+  "post_restart_quiet_window_seconds": 5,
+  "test_timers_seconds": {
+    "peer_timeout": 2,
+    "settle_timeout": 3,
+    "pushpull_interval": 1,
+    "reconnect_interval": 1,
+    "group_wait": 1,
+    "group_interval": 1
+  },
+  "checks": [
+    "two actual processes form HA cluster",
+    "two observers grouped with one initial notification",
+    "actual notification sender stops",
+    "survivor delivers distinct failure and both recoveries",
+    "partial recovery remains firing",
+    "persistent-storage restart rejoins cluster",
+    "resolved replay after rejoin produces no duplicate",
+    "rejoined cluster processes new work"
+  ],
+  "limitations": [
+    "graceful member stop only; not SIGKILL or disk loss",
+    "loopback transport with shortened HA timers",
+    "no real network partition, packet loss or clock skew",
+    "no exactly-once delivery guarantee"
+  ],
+  "notifications": 6,
+  "successful_runs_observed": 2,
+  "artifact_scope": "Latest successful run summary; the tool was executed successfully twice consecutively. Raw logs and payloads were not published."
+}

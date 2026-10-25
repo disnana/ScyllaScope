@@ -1,0 +1,38 @@
+{
+  "active_before": 1201,
+  "active_rows_unchanged_after_prune": true,
+  "all_legacy_rows_unchanged_before_prune": true,
+  "first_open_additive_migration_seconds": 0.526264445,
+  "fixture_build_seconds": 2.732190419,
+  "integrity_check": "ok",
+  "original_database_bytes": 80297984,
+  "prune_seconds": 1.025364254,
+  "reopen_seconds": 0.000491344,
+  "result": "PASS",
+  "rows_after_prune": 1201,
+  "rows_before": 200000,
+  "sqlite_version": "3.53.4",
+  "ui_query_seconds": 0.003036882,
+  "ui_rows": 500,
+  "work_query_seconds": 0.006821003,
+  "work_rows": 1201,
+  "date_utc": "2026-10-25",
+  "go_version": "go1.27.3",
+  "driver": "real modernc.org/sqlite v1.59.0",
+  "run_command": "SCYLLASCOPE_LARGE_LEGACY=1 go test -count=1 -timeout=5m -v ./internal/store -run ^TestLargeLegacyIncidentMigration$",
+  "fixture": "Isolated t.TempDir; old incidents_v5 schema only, 200000 valid synthetic JSON bodies without notification_pending or recovery_pending; 1201 active and 198799 resolved >48h old. Initial file is closed before Store.Open.",
+  "scope": [
+    "Store.Open adds current schema/indexes without changing any original incident row (streamed whole-table digest equality before/after migration)",
+    "UI limit remains500; 137-row keyset pages retrieve all1201 active legacy rows",
+    "Prune(1) removes old resolved fixture rows while preserving complete active-row digest",
+    "Reopen preserves all1201 active work rows and SQLite integrity_check returns ok"
+  ],
+  "limits": [
+    "Synthetic valid legacy schema, not a copy of an operational database",
+    "Only incidents contain substantial data; event/sample/node-history tables are created empty during Open",
+    "Single-process/uncontended local filesystem, no concurrent legacy writer, power failure, corruption, low-disk or network filesystem scenario",
+    "80.3MB fixture does not establish migration latency or compatibility for arbitrary multi-GB operational databases",
+    "Old resolved rows lacking pending metadata are not considered undelivered work; the fixture does not claim to recover historical notifications already lost by old releases",
+    "Timings are a single run on this development container and exclude fixture generation; no performance SLA"
+  ]
+}

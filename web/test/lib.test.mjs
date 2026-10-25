@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {bytes,formatMS,latency,checkState,clusterState,edgeState,key,shortStatus,chartPaths,csv,ensureSnapshot} from '../src/lib.js';
+const now=Date.parse('2026-09-19T00:00:00Z');
+const iso=(delta=0)=>new Date(now+delta).toISOString();
+const check={ok:true,state:'ok',checked_at:iso(),latency:100000};
+test('unknown bytes remain unknown, real zero is zero',()=>{assert.equal(bytes(null),'—');assert.equal(bytes(NaN),'—');assert.equal(bytes(-1),'—');assert.equal(bytes(0),'0 B');assert.equal(bytes(1024),'1.0 KiB');});
+test('sub-ms latency is not floored or given a fake minimum',()=>{assert.equal(latency(check,now),'0.10 ms');assert.equal(formatMS(.02),'0.02 ms');assert.equal(latency({...check,latency:null},now),'—');});
+test('old and future observations cannot appear successful',()=>{assert.equal(checkState({...check,checked_at:iso(-31000)},now),'stale');assert.equal(checkState({...check,checked_at:iso(6000)},now),'stale');assert.equal(checkState({...check,state:'disabled'},now),'disabled');assert.equal(checkState({},now),'unknown');});
+test('health goes unknown without fresh timestamp',()=>{assert.equal(clusterState({health:'healthy',generated_at:iso(-31000)},now),'unknown');assert.equal(clusterState({health:'healthy',generated_at:iso(6000)},now),'unknown');assert.equal(clusterState({health:'healthy',generated_at:iso()},now),'healthy');});
+test('directed edge failure differs from no observation',()=>{assert.equal(edgeState(null,{},now),'unknown');const e={observed_at:iso(),cql:check,internode:check};assert.equal(edgeState(e,{},now),'healthy');assert.equal(edgeState({...e,cql:{...check,ok:false}}, {},now),'critical');assert.equal(edgeState({...e,stale:true},{},now),'unknown');});
+test('stable identity prefers host ID',()=>{assert.equal(key({host_id:'stable',id:'x',address:'ip'}),'stable');assert.equal(key({address:'ip'}),'ip');});
+test('missing metadata does not become UN',()=>{assert.equal(shortStatus({up:true,status:'NORMAL'}),'未確認');assert.equal(shortStatus({metadata_known:true,up:true,status:'NORMAL'}),'UN');});
+test('null samples break chart path rather than connecting zeros',()=>{const v=chartPaths([{time:iso(-2000),v:1},{time:iso(-1000),v:null},{time:iso(),v:2}],s=>s.v);assert.equal((v.path.match(/M/g)||[]).length,2);assert.equal((v.path.match(/L/g)||[]).length,0);});
+test('CSV quotes and neutralizes formula injection',()=>{const v=csv([{x:'=HYPERLINK("bad")',y:'a,b'}],['x','y']);assert.ok(v.includes("'=HYPERLINK"));assert.ok(v.includes('"a,b"'));});
+test('malformed snapshots rejected',()=>{assert.throws(()=>ensureSnapshot({}));const s=ensureSnapshot({generated_at:iso(),nodes:[null,{address:'1.2.3.4'}],edges:[]});assert.equal(s.nodes.length,1);assert.deepEqual(s.events,[]);});
