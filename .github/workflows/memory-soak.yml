@@ -3,8 +3,8 @@ on:
   workflow_dispatch:
     inputs:
       seconds:
-        description: 'Finite synthetic soak duration (30..3600 seconds)'
-        default: '600'
+        description: 'Finite synthetic soak duration (60..3600 seconds)'
+        default: '3600'
         required: true
 permissions:
   contents: read
@@ -20,15 +20,20 @@ jobs:
       - name: HTTP SSE and real SQLite churn
         env:
           SCYLLASCOPE_SOAK_SECONDS: ${{ inputs.seconds }}
+          SCYLLASCOPE_LONG_SECONDS: ${{ inputs.seconds }}
+          SCYLLASCOPE_LONG_OUTPUT: ${{ github.workspace }}/test-results/long
           GOMEMLIMIT: 128MiB
         run: |
           [[ "$SCYLLASCOPE_SOAK_SECONDS" =~ ^[0-9]+$ ]]
-          (( SCYLLASCOPE_SOAK_SECONDS >= 30 && SCYLLASCOPE_SOAK_SECONDS <= 3600 ))
+          (( SCYLLASCOPE_SOAK_SECONDS >= 60 && SCYLLASCOPE_SOAK_SECONDS <= 3600 ))
           mkdir -p test-results
           set -o pipefail
-          go test -timeout=70m -count=1 -v ./internal/api ./tests/runtime -run 'TestSoakRuntime|TestSQLiteIncidentSoak' | tee test-results/soak.txt
+          go test -p 3 -timeout=70m -count=1 -v ./internal/api ./tests/runtime ./internal/monitor -run 'TestSoakRuntime|TestSQLiteIncidentSoak|TestLongCollectorSoak' | tee test-results/soak.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: finite-soak-synthetic-data
-          path: test-results/
+          path: |
+            test-results/soak.txt
+            test-results/long/samples.jsonl
+            test-results/long/*.heap

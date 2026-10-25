@@ -11,3 +11,5 @@
 - 初期値まで戻ることを合格条件にしない。後半に持続増加が見える場合は、その要因と未解決事項を報告。
 
 この試験は合成discoveryとloopbackのネットワークfixtureを使用します。CQL native session、OSの本物のサービス管理、実クラスタの数週間の稼働とは区別します。別に隔離ScyllaDBの統合試験と最終HEADのbuild/test/race/browser/PR CIを実施します。60分を数週間の代用とは扱いません。
+
+独立した試験設計レビューで確認した限定: 本soakの通知先は即時503/204であり、ハングする宛先とAlertmanager HAは別の520件回帰/実HA統合で検証する。履歴保持168時間のため、通常サンプルと未復旧履歴はこの1時間では期限切れにならずDB上では増加する。prune関数の呼出を、通常履歴の実時間の期限切れ検証と読み替えない。終了値はHTTP/SSE停止とidle接続解放後なので、稼働中sampleの傾きとは区別する。loopback失敗probeは実CQL driver/TLS/metadataの長期割り当てを代表しない。

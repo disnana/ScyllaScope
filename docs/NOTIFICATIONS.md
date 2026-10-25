@@ -4,7 +4,7 @@
 
 各ノードが全Alertmanager宛てに `/api/v2/alerts` を送信します。`sender_node` はこのモードでは使用しません。1台でも受理すれば送信状態を保存し、その後もretry_intervalごとにfiring状態を再送します。全宛先停止時はSQLiteの未送信状態を保持し、再起動後も再試行します。復旧まで送信できなかった場合は障害→復旧の順に受信口へ渡します。ただしAlertmanager側のgroup_wait中に復旧した短い障害は、そのポリシーにより通知されない場合があります。
 
-`examples/alertmanager.yaml` のgroup_byを使用してください。クラスタ、対象ノード、障害種別でまとめ、observerはアラートのラベルに残します。CQL・internode・サービス・DOWN・状態・メンバー欠落を分けます。方向依存のdiscovery/membership/asymmetric/peer不達はobserverもgroup_byに加える運用を検討してください。集約通知内には各observerの状態が残るため、一方向だけの障害も確認できます。
+`examples/alertmanager.yaml` のgroup_byを使用してください。クラスタ、対象ノード、障害種別でまとめ、observerとincident_idはアラートのラベルに残します。同じ対象の再発と前回の遅延復旧を異なるepisodeとして扱います。CQL・internode・サービス・DOWN・状態・メンバー欠落を分けます。方向依存のdiscovery/membership/asymmetric/peer不達はobserverもgroup_byに加える運用を検討してください。集約通知内には各observerの状態が残るため、一方向だけの障害も確認できます。
 
 同じグループの観測元が増減すると、group_interval後に更新通知が届く場合があります。「障害ごとに厳密に1通」という保証ではありません。一方だけ復旧しても他の観測元の同種アラートがfiringなら、グループ全体をresolvedにはしません。別プロトコルの障害は別グループです。
 
@@ -23,3 +23,7 @@ AlertmanagerはScyllaDBと独立したサービスとして運用してくださ
 ```bash
 python3 tools/test_alertmanager.py /path/to/alertmanager
 ```
+
+配送は32個の有限workerで行い、最大8個のAlertmanager宛先へ同時送信します。キュー128、inflight最大160、retry記録2048を上限とし、停止した宛先のタイムアウトが他の受信口を逐次ブロックしないようにします。500件を超えるハング混在回帰を実施しました。有限資源下で任意件数の配送遅延を保証するものではなく、容量計画は必要です。Unknownへ変わってもrunning observerは永続した未復旧アラートのheartbeatを続けます。全observerが停止した場合の期限切れは別系統の死活監視で補います。
+
+実2-process HAの停止/再joinの検証結果: [ALERTMANAGER-HA.md](validation/ALERTMANAGER-HA.md)。
