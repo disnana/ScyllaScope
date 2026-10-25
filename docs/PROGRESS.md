@@ -1,16 +1,16 @@
-# 継続タスクの進捗 — 2026-10-25 08:51 UTC
+# 継続タスクの進捗 — 2026-10-25 09:04 UTC
 
-既存Draft PR #1、既存ブランチで継続中です。測定は中断・再起動していません。
+既存Draft PR #1で継続中。二つの60分測定は中断・再起動せず完了しました。
 
-| run | 開始UTC（概算） | 現在 | 結果・残り |
+| run | 開始UTC（概算） | 完了UTC（概算） | 結果 |
 |---|---|---|---|
-| retry期限回収前（他の独立レビュー修正済み） | 07:41:23 | 08:41:23頃に60分完了 | PASS。更新14,302、SSE30,110、再接続1,506、GET3,599、HTTP失敗0、初期pending0 |
-| retry期限回収後 | 08:01:34 | 08:51時点で約49分40秒、稼働中 | HTTP失敗0、初期pending0。残り約10分20秒、09:02頃に完了見込み |
+| retry期限回収前（他レビュー修正済み） | 07:41:23 | 08:41:23 | PASS。HTTP/SSE失敗0、初期pending0、retry記録622 |
+| retry期限回収後 | 08:01:34 | 09:01:34 | PASS。HTTP/SSE失敗0、初期pending0、retry記録1 |
 
-変更前の終了時retry記録は622件でした。修正後はウォームアップ後も少数件です。ただし稼働中heap/RSSには正の傾きと振れがあり、全体のメモリ問題解消を示す結果ではありません。payloadと履歴DBも増える負荷なので、値を混ぜずに解析します。
+更新回数14,302/14,274、SSE受信30,110/30,052、再接続1,506/1,504、snapshot GETは各3,599。意図した通知先503は別に集計しています。
 
-追加ブロッカーはありません。測定後に解析・最終HEADのbuild/test/race/browserとPR CIを確認します。実systemdはPID1=tail、manager/実行ファイルがないため未実施です。
+不要なretry保持は改善しましたが、RSSのwarmup後OLSは前後とも約+5.9MiB/時でした。**長期メモリの解消判定は未達**です。payload/DBの増加、JSON/SSE作業領域、GC外allocator、idle/released等を分けた根拠と限定を継続検証報告へ記録しました。
 
-実施済み: 独立レビューの通知/ページ処理/ライフサイクル修正、520件ハング混在配送、実ScyllaDB6.2.3のQuery/Discover/停止・再接続/認証/TLS正負ケース、実Alertmanager HAの配送担当停止・再join、20万行合成旧SQLiteのmigration/prune。さらにC allocatorのGC外mapping保持を短いbuild-tag診断で観測中です（本60分runの原因を断定するものではありません）。
+現在は最終HEADのbuild/test/race/browser/CIを確認中です。追加の自動承認拒否・結果不明の書込はありません。実systemdはPID1=tail、manager/bus不在のため未実施です。daemonバイナリ自体は存在します。PID1やホストcgroupの変更、本番接続・変更、マージ、タグ、正式リリースは行っていません。
 
-本番接続・変更、マージ、タグ、正式リリースは行っていません。最終結果はVALIDATION.mdと継続検証報告へ整理します。
+最終報告: [CONTINUATION-VALIDATION.md](CONTINUATION-VALIDATION.md)。通常の実機受入と2〜4週間の測定は正式版の残条件です。
