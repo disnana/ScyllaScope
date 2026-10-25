@@ -2,6 +2,7 @@ package integration_test
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net"
 	"os"
@@ -13,6 +14,46 @@ import (
 	"testing"
 	"time"
 )
+
+// validateFixtureEndpoint binds the loopback seed to this exact fixture's
+// published CQL port before the production adapter can establish a session.
+func validateFixtureEndpoint(addr string, portsJSON []byte) error {
+	host, portText, err := net.SplitHostPort(addr)
+	ip := net.ParseIP(host)
+	if err != nil || ip == nil || !ip.IsLoopback() {
+		return fmt.Errorf("integration address must be a literal loopback address")
+	}
+	port, err := strconv.Atoi(portText)
+	if err != nil || port < 1 || port > 65535 {
+		return fmt.Errorf("invalid fixture port")
+	}
+	var ports map[string][]struct {
+		HostIP   string `json:"HostIp"`
+		HostPort string `json:"HostPort"`
+	}
+	if err = json.Unmarshal(portsJSON, &ports); err != nil {
+		return fmt.Errorf("invalid fixture port inspection")
+	}
+	bindings := ports["9042/tcp"]
+	if len(bindings) == 0 {
+		return fmt.Errorf("fixture has no published CQL port")
+	}
+	matched := false
+	for _, binding := range bindings {
+		boundIP := net.ParseIP(binding.HostIP)
+		boundPort, parseErr := strconv.Atoi(binding.HostPort)
+		if boundIP == nil || !boundIP.IsLoopback() || parseErr != nil || boundPort < 1 || boundPort > 65535 {
+			return fmt.Errorf("fixture CQL bindings must be literal loopback endpoints")
+		}
+		if boundIP.Equal(ip) && boundPort == port {
+			matched = true
+		}
+	}
+	if !matched {
+		return fmt.Errorf("integration address does not match this fixture's published CQL port")
+	}
+	return nil
+}
 
 // Opt-in, disposable local fixture only. Never accepts a remote host or an
 // unlabelled container, so accidental production configuration is rejected.
@@ -42,6 +83,13 @@ func TestDisposableScyllaCQL(t *testing.T) {
 	label, err := docker("inspect", "--format", "{{index .Config.Labels \"scyllascope.integration\"}}", container)
 	if err != nil || strings.TrimSpace(string(label)) != "isolated" {
 		t.Fatal("fixture must have scyllascope.integration=isolated label")
+	}
+	portsJSON, err := docker("inspect", "--format", "{{json .NetworkSettings.Ports}}", container)
+	if err != nil {
+		t.Fatal("fixture CQL port inspection failed")
+	}
+	if err = validateFixtureEndpoint(addr, portsJSON); err != nil {
+		t.Fatal(err)
 	}
 	// The production adapter deliberately filters host metadata. Accept only
 	// the address obtained from this verified disposable container, rather than
@@ -116,5 +164,33 @@ func TestDisposableScyllaCQL(t *testing.T) {
 	client.Close()
 	if query() == nil {
 		t.Fatal("query after Close succeeded")
+	}
+}
+
+func TestFixtureEndpointGuard(t *testing.T) {
+	cases := []struct {
+		name, addr, ports string
+		valid             bool
+	}{
+		{"matching loopback", "127.0.0.1:19042", `{"9042/tcp":[{"HostIp":"127.0.0.1","HostPort":"19042"}]}`, true},
+		{"matching IPv6 loopback", "[::1]:19042", `{"9042/tcp":[{"HostIp":"::1","HostPort":"19042"}]}`, true},
+		{"different local CQL port", "127.0.0.1:29042", `{"9042/tcp":[{"HostIp":"127.0.0.1","HostPort":"19042"}]}`, false},
+		{"different loopback address", "127.0.0.2:19042", `{"9042/tcp":[{"HostIp":"127.0.0.1","HostPort":"19042"}]}`, false},
+		{"wildcard IPv4 binding", "127.0.0.1:19042", `{"9042/tcp":[{"HostIp":"0.0.0.0","HostPort":"19042"}]}`, false},
+		{"wildcard IPv6 binding", "[::1]:19042", `{"9042/tcp":[{"HostIp":"::","HostPort":"19042"}]}`, false},
+		{"mixed public binding", "127.0.0.1:19042", `{"9042/tcp":[{"HostIp":"127.0.0.1","HostPort":"19042"},{"HostIp":"0.0.0.0","HostPort":"19042"}]}`, false},
+		{"missing binding", "127.0.0.1:19042", `{"9042/tcp":null}`, false},
+		{"wrong container port", "127.0.0.1:19042", `{"19042/tcp":[{"HostIp":"127.0.0.1","HostPort":"19042"}]}`, false},
+		{"invalid JSON", "127.0.0.1:19042", `invalid`, false},
+		{"hostname seed refused", "localhost:19042", `{"9042/tcp":[{"HostIp":"127.0.0.1","HostPort":"19042"}]}`, false},
+		{"invalid binding port", "127.0.0.1:19042", `{"9042/tcp":[{"HostIp":"127.0.0.1","HostPort":"70000"}]}`, false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := validateFixtureEndpoint(tc.addr, []byte(tc.ports))
+			if (err == nil) != tc.valid {
+				t.Fatalf("valid=%t error=%v", tc.valid, err)
+			}
+		})
 	}
 }

@@ -2,7 +2,15 @@
 
 This suite is opt-in. It rejects non-loopback seed addresses and requires a
 Docker container with a `scyllascope-isolated-` name and the exact label
-`scyllascope.integration=isolated`. It reads that fixture's network identity to
+`scyllascope.integration=isolated`. Before creating a CQL client/session, it also checks the fixture's `9042/tcp`
+published bindings: every HostIP must be a literal loopback address, and the
+selected seed IP and port must match one of those bindings. A labelled fixture
+therefore cannot authorize a seed pointing at a different local CQL server.
+Twelve pure-function regression cases cover matching IPv4/IPv6, wrong local
+ports/addresses, wildcard/mixed-public bindings, missing/wrong container ports,
+invalid inspection JSON and invalid endpoints. These run in the default suite.
+
+It reads that fixture's network identity to
 retain the production adapter's host filter when Docker forwards the CQL port.
 It must never target an operational server or reuse an operational volume.
 
@@ -45,3 +53,6 @@ Authentication, TLS/CA/hostname verification, cancellation during initial
 session creation, multi-node topology, version compatibility beyond 6.2.3, and
 long-running CQL allocation behavior remain separate acceptance conditions.
 Raw Docker/CQL logs are private temporary artifacts and are not committed.
+
+After this guard was added, the real fixture race suite was repeated successfully
+(10.896 seconds, no race), and its container was removed again.

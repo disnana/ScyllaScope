@@ -29,8 +29,15 @@
     "Same production adapter reconnects successfully after database restart",
     "Query after adapter Close is rejected"
   ],
-  "normal_result": {"status": "PASS", "package_seconds": 9.176},
-  "race_result": {"status": "PASS", "package_seconds": 10.538, "race_detected": false},
+  "normal_result": {
+    "status": "PASS",
+    "package_seconds": 9.176
+  },
+  "race_result": {
+    "status": "PASS",
+    "package_seconds": 10.538,
+    "race_detected": false
+  },
   "adapter_defects_reproduced": [],
   "not_tested": [
     "authentication",
@@ -42,5 +49,22 @@
   ],
   "cleanup": "The dedicated fixture container was removed and absence was verified; downloaded image retained as a development cache.",
   "reproduction": "tests/integration/README.md",
-  "raw_logs_published": false
+  "raw_logs_published": false,
+  "endpoint_guard": {
+    "before_initial_session": true,
+    "checks": [
+      "explicit loopback seed",
+      "disposable name and isolated label",
+      "9042/tcp published HostIP values are all literal loopback",
+      "seed IP/port matches verified fixture binding"
+    ],
+    "pure_regression_cases": 12,
+    "result": "PASS under race detector"
+  },
+  "guarded_race_result": {
+    "status": "PASS",
+    "package_seconds": 10.896,
+    "race_detected": false,
+    "container_removed_after_run": true
+  }
 }
