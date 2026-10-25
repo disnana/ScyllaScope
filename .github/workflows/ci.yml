@@ -42,7 +42,11 @@ jobs:
           SCYLLASCOPE_RACE_TESTS: '1'
         run: |
           version=$(sed -nE 's/^const Version = "([^"]+)"$/\1/p' internal/model/model.go)
+          # Deliberately ignored local input must not enter go:embed in a build.
+          printf '%s\n' 'SCYLLASCOPE_TEST_UNTRACKED_DISTRIBUTION_SENTINEL' > internal/api/static/.env
+          trap 'rm -f internal/api/static/.env' EXIT
           tools/package-release.sh --tag "v$version" --output "$RUNNER_TEMP/prebuilt"
+          python3 tools/verify-release.py "$RUNNER_TEMP/prebuilt" --sentinel SCYLLASCOPE_TEST_UNTRACKED_DISTRIBUTION_SENTINEL
       - name: Upload verified prebuilt distribution (no Release publication)
         uses: actions/upload-artifact@v4
         with:
