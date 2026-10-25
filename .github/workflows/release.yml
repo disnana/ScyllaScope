@@ -5,7 +5,7 @@ on:
       tag:
         description: 'Exact v + internal/model.Version (publication requires an existing tag)'
         required: true
-        default: v0.6.3-rc.2
+        default: v0.6.3
         type: string
       publish:
         description: 'Publish a new Release only after separate approval; false prepares artifacts'
@@ -85,6 +85,10 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.build.outputs.source_sha }}
+          persist-credentials: false
       - uses: actions/download-artifact@v4
         with:
           name: ${{ needs.build.outputs.artifact_name }}
@@ -108,9 +112,25 @@ jobs:
             echo 'Could not confirm Release absence; publication stopped.' >&2
             exit 1
           fi
-          printf 'Prebuilt Linux amd64/arm64 binaries.\n\nSource commit: %s\n\nConsumer installation requires no Go or Node.js. Review docs/RELEASING.md and the validation reports before deployment.\n' "$SOURCE_SHA" > "$RUNNER_TEMP/scyllascope-release-notes.md"
+          notes="$GITHUB_WORKSPACE/docs/RELEASE-NOTES.md"
+          [[ "$(head -n 1 "$notes")" == "# ScyllaScope $RELEASE_TAG" ]]
+          # Source links are absolute in GitHub's Release renderer, not relative
+          # to its /releases page. Keep unresolved acceptance limits in the body.
+          python3 - "$notes" "$RUNNER_TEMP/scyllascope-release-notes.md" <<'PY'
+          import os, re, sys
+          from pathlib import Path
+          base='https://github.com/'+os.environ['GH_REPO']+'/blob/'+os.environ['SOURCE_SHA']+'/'
+          body=Path(sys.argv[1]).read_text()
+          def link(match):
+              path=match.group(1)
+              if '://' in path or path.startswith('#'):return match.group(0)
+              path=path[3:] if path.startswith('../') else 'docs/'+path
+              return ']('+base+path+')'
+          body=re.sub(r'\]\(([^)]+)\)',link,body)
+          Path(sys.argv[2]).write_text(body+'\n\nSource commit: '+os.environ['SOURCE_SHA']+'\n')
+          PY
           flags=()
-          if [[ "$RELEASE_TAG" == *-* ]]; then flags+=(--prerelease); fi
+          if [[ "$RELEASE_TAG" == *-* ]]; then flags+=(--prerelease); else flags+=(--latest); fi
           # --verify-tag never creates/pushes a missing tag; no --clobber or upload retry.
           gh release create "$RELEASE_TAG" \
             "scyllascope-$RELEASE_TAG-linux-amd64.tar.gz" \

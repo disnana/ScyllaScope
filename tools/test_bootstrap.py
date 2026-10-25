@@ -19,7 +19,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-TAG = 'v0.6.3-rc.2'
+TAG = 'v0.6.3'
 VERSION = TAG[1:]
 BASE = 'https://github.com/disnana/ScyllaScope/releases'
 RAW = 'https://raw.githubusercontent.com/disnana/ScyllaScope/main/install.sh'

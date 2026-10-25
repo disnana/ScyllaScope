@@ -2,18 +2,18 @@
 
 ScyllaDBの各ノードから接続・クラスタ状態を観測する監視UIです。Linux AMD64/ARM64向けのビルド済み配布を使うため、利用者のホストにGo・Node.js・ソースビルドは不要です。
 
-**初回の配布Releaseはまだ公開されていません。以下の3コマンドは、この配布対応をmainへ取り込み、`v0.6.3-rc.2`のRelease assetsを公開した後に利用できます。取り込み前のmain/install.shはローカルビルド用の旧版なので、公開完了前には以下を実行しないでください。新しい取得スクリプトは未公開assetの取得・検証に失敗すると導入前に停止します。** [公開手順と準備済み配布物](docs/RELEASING.md)
+公式Releaseの`v0.6.3`を取得します。Release assetsが取得できない場合や検証に失敗した場合、導入前に停止します。 [公開手順と準備済み配布物](docs/RELEASING.md)
 
 ## install
 
 ```bash
-bash -o pipefail -c 'script=$(curl -fsSL https://raw.githubusercontent.com/disnana/ScyllaScope/main/install.sh) && printf "%s\n" "$script" | bash -s -- install --version v0.6.3-rc.2'
+bash -o pipefail -c 'script=$(curl -fsSL https://raw.githubusercontent.com/disnana/ScyllaScope/main/install.sh) && printf "%s\n" "$script" | bash -s -- install --version v0.6.3'
 ```
 
 ## update
 
 ```bash
-bash -o pipefail -c 'script=$(curl -fsSL https://raw.githubusercontent.com/disnana/ScyllaScope/main/install.sh) && printf "%s\n" "$script" | bash -s -- update --version v0.6.3-rc.2'
+bash -o pipefail -c 'script=$(curl -fsSL https://raw.githubusercontent.com/disnana/ScyllaScope/main/install.sh) && printf "%s\n" "$script" | bash -s -- update --version v0.6.3'
 ```
 
 ## uninstall
@@ -24,7 +24,7 @@ bash -o pipefail -c 'script=$(curl -fsSL https://raw.githubusercontent.com/disna
 
 それぞれ1回のコマンドで完結します。必要時のみsudoがパスワードを求めます。Bash、curl、Linuxの標準的なtar/sha256sum/coreutils、動作中のsystemdが必要です。非対応OS/CPU・取得失敗・検証失敗は導入前に停止します。上のコマンドはscriptの取得が完全に成功してからbashへ渡し、取得失敗時は導入を開始しません。パイプの失敗も終了コードへ反映します。
 
-`--version`はバージョン固定です。公開された安定版の最新版を使う場合、install/updateから`--version v0.6.3-rc.2`を外します。GitHubのlatestはprereleaseを含まないため、RCは明示して固定します。Scriptは公式`disnana/ScyllaScope`のReleaseだけを取得し、CPUを自動判定、SHA-256・archive member・CLI versionを検証します。checksumは同じ配布元の整合性確認で、独立署名の代替ではありません。
+`--version`はバージョン固定です。公開された安定版の最新版を使う場合、install/updateから`--version v0.6.3`を外します。GitHubのlatestはprereleaseを含まないため、RCは明示して固定します。Scriptは公式`disnana/ScyllaScope`のReleaseだけを取得し、CPUを自動判定、SHA-256・archive member・CLI versionを検証します。checksumは同じ配布元の整合性確認で、独立署名の代替ではありません。
 
 installは専用ユーザーでScyllaScopeだけを起動し、通常の`/etc/scylla/scylla.yaml`から設定を検出します。既存の`/etc/scyllascope/config.yaml`、ui-token、secrets.env、監視DBを保持します。updateは停止後バックアップし、起動失敗時は旧バイナリ・設定・監視DBへ自動復元します。uninstallはScyllaScopeのサービス・導入ファイルを削除し、設定・データ・バックアップ・専用ユーザーを保持します。ScyllaDBのサービス・設定・データは変更しません。[更新・切り戻しの詳細](UPGRADE.md)
 

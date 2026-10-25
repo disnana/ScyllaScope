@@ -1,5 +1,5 @@
 {
-  "name": "scyllascope-web", "version": "0.6.3-rc.2", "private": true, "type": "module",
+  "name": "scyllascope-web", "version": "0.6.3", "private": true, "type": "module",
   "scripts": {"build": "node build.mjs", "test": "node --test test/*.test.mjs"},
   "engines": {"node": ">=20"}
 }

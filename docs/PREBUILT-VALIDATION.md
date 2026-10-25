@@ -1,5 +1,7 @@
 # ビルド済み配布の検証
 
+以下はPR #2の公開準備時点の検証記録です。公開後の状態は[Releases](https://github.com/disnana/ScyllaScope/releases)と[CI](https://github.com/disnana/ScyllaScope/actions)を参照してください。
+
 PR #1のmainマージ（62aa061）を確認し、main起点のfix/prebuilt-distributionと[PR #2](https://github.com/disnana/ScyllaScope/pull/2)で対応した。確認時点でReleaseとtagは0件、自動Releaseも起動していなかった。既存のマージ済みbranchへ追記していない。公開・tag・追加mergeは行っていない。
 
 ## 実施済み
@@ -15,15 +17,17 @@ PR #1のmainマージ（62aa061）を確認し、main起点のfix/prebuilt-distr
 
 ローカル候補はdist/v0.6.3-rc.2（Git対象外）へ準備した。最初の実packagingのsourceは4748e62で、以後はREADME取得gate/同回帰/両CPU notice収集等を更新した。最終CIは最終HEADから配布を再生成するため、公開にはそのレビュー済みsource/tagから再生成したassetを使う。
 
-## 実施していないこと
+旧RC候補の結果を履歴として保持する。正式版候補はソース定数・web metadata・README・workflowをv0.6.3へ更新し、最終PR CIから再packagingする。[正式版リリースノート](RELEASE-NOTES.md)に未検証事項を引き継ぐ。
+
+## この報告作成時点で実施していないこと
 
 - 実systemdのinstall→update→起動失敗rollback→uninstall→再導入。このcontainerはPID1がtailでmanager busがなく、systemd/PID1/cgroup/securityを変更して代用していない。shell層のfixture dispatch、実backendファイルtransaction回帰、実systemd lifecycleを混同しない。
 - ARM64実機での起動。クロスビルド/ELF/metadata検証と、ネイティブsystemd上の実行は別である。
-- 公開Release assetの実URLを使った導入。現在main/install.shは旧ローカルbuild用であり、PR反映と初回Release公開まではREADMEの3コマンドを実運用しない。Release workflowのpublish=true経路も、権限外の公開をテスト目的で実行していない。
+- 公開Release assetの実URLを使った導入。この報告作成時点のmain/install.shは旧ローカルbuild用であり、PR反映と初回Release公開まではREADMEの3コマンドを実運用しない。Release workflowのpublish=true経路も、権限外の公開をテスト目的で実行していない。
 - 本番への接続/インストール、ScyllaDBのunit/config/data変更、権限/security設定・永続アクセスの追加、tag/Release/追加PR merge。
 
 ## 公開する際の最終段階
 
-別承認後にPRをmainへ取り込み、レビュー済みcommitの既存v0.6.3-rc.2 tagを用意し（無ければtag作成も別承認）、manual release workflowでpublish=trueとする。既存Releaseがある/存在確認が失敗した場合は停止する。RCはprereleaseで、READMEは固定versionを使う。公開後に使い捨てLinux systemd VMで3操作と失敗復元・ScyllaDB無変更を受け入れる。[具体的公開手順](RELEASING.md)
+公開の明示承認を受けた後、v0.6.3の最終CI成功後にPRをmainへ取り込み、レビュー済みcommitのv0.6.3 tagを用意し、manual release workflowでpublish=trueとする。既存Releaseがある/存在確認が失敗した場合は停止する。v0.6.3はprerelease=false/latestで、READMEは固定versionを使う。公開後に使い捨てLinux systemd VMで3操作と失敗復元・ScyllaDB無変更を受け入れる。[具体的公開手順](RELEASING.md)
 
 旧メモリ/実クラスタの結果と残件は[VALIDATION](../VALIDATION.md)を維持する。配布完成やCI成功を、数週間のRSS解消・実systemd受入の代替にしない。
