@@ -13,6 +13,23 @@ func metadataOnly(n model.Node) model.Node {
 		LoadBytes: n.LoadBytes, LoadKnown: n.LoadKnown, HostID: n.HostID}
 }
 
+// topologyMetadata is the restart discovery cache, not a copy of the live UI
+// snapshot. Preserve the same node set/order and original metadata timestamps;
+// observations, history and incidents have their own live/persistent owners.
+// Keep Store.SaveTopology generic for other callers and legacy round-trips.
+func topologyMetadata(s model.Snapshot) model.Snapshot {
+	cached := model.Snapshot{SchemaVersion: s.SchemaVersion, Version: s.Version,
+		ClusterName: s.ClusterName, LocalNode: s.LocalNode, LocalNodeName: s.LocalNodeName,
+		LocalAddress: s.LocalAddress, GeneratedAt: s.GeneratedAt}
+	if s.Nodes != nil {
+		cached.Nodes = make([]model.Node, len(s.Nodes))
+		for i, n := range s.Nodes {
+			cached.Nodes[i] = metadataOnly(n)
+		}
+	}
+	return cached
+}
+
 // A failed discovery never proves membership removal. Expire retired members
 // only with a successful complete discovery, and keep configured peers explicitly.
 // At all times bound the cache to twice max_nodes, preserving current identities.

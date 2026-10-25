@@ -1,0 +1,88 @@
+//go:build memory.counters
+
+package monitor
+
+import (
+	"encoding/binary"
+	"io"
+	"net"
+	"net/http"
+	"net/http/httptest"
+	"strconv"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	"scyllascope/internal/settings"
+)
+
+func isolationProbeFixtures(t *testing.T, c *settings.Config) (func(), *atomic.Int64) {
+	t.Helper()
+	var listeners []net.Listener
+	var workers sync.WaitGroup
+	var probes atomic.Int64
+	cleanup := func() {
+		for _, l := range listeners {
+			l.Close()
+		}
+		workers.Wait()
+	}
+	port := 0
+	for _, ip := range []string{"127.0.0.1", "127.0.0.2", "127.0.0.3"} {
+		l, err := net.Listen("tcp", net.JoinHostPort(ip, strconv.Itoa(port)))
+		if err != nil {
+			cleanup()
+			t.Fatal(err)
+		}
+		listeners = append(listeners, l)
+		if port == 0 {
+			port = l.Addr().(*net.TCPAddr).Port
+		}
+		workers.Add(1)
+		go func(l net.Listener) {
+			defer workers.Done()
+			for {
+				conn, err := l.Accept()
+				if err != nil {
+					return
+				}
+				workers.Add(1)
+				go func() {
+					defer workers.Done()
+					defer conn.Close()
+					conn.SetDeadline(time.Now().Add(time.Second))
+					header := make([]byte, 9)
+					if _, err := io.ReadFull(conn, header); err != nil {
+						return
+					}
+					if header[4] != 5 {
+						return
+					}
+					body := append([]byte{0, 1, 0, 11}, []byte("CQL_VERSION")...)
+					body = append(body, 0, 1, 0, 5)
+					body = append(body, []byte("3.3.1")...)
+					header[0] = 0x84
+					header[4] = 6
+					binary.BigEndian.PutUint32(header[5:9], uint32(len(body)))
+					conn.Write(append(header, body...))
+					probes.Add(1)
+				}()
+			}
+		}(l)
+	}
+	metrics := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		io.WriteString(w, "scylla_storage_proxy_coordinator_read_timeouts 0\n")
+	}))
+	host, p, _ := net.SplitHostPort(strings.TrimPrefix(metrics.URL, "http://"))
+	mp, _ := strconv.Atoi(p)
+	c.Scylla.CQLPort = port
+	c.Scylla.InternodePort = port
+	c.Scylla.CQLHosts = []string{"127.0.0.1"}
+	c.Scylla.RESTURL = metrics.URL
+	c.Scylla.PrometheusAddress = host
+	c.Scylla.PrometheusPort = mp
+	c.Scylla.SystemdService = "scyllascope-isolation-no-such-service"
+	return func() { metrics.Close(); cleanup() }, &probes
+}

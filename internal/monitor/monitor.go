@@ -360,7 +360,7 @@ func (m *Monitor) refresh(ctx context.Context) {
 			}
 		}
 		if discovery.OK {
-			if e := m.store.SaveTopology(s); e != nil {
+			if e := m.store.SaveTopology(topologyMetadata(s)); e != nil {
 				s.Warnings = append(s.Warnings, "トポロジー保存失敗: "+e.Error())
 			}
 		}
