@@ -21,3 +21,7 @@ PASSの意味は負荷/資源境界チェックの成功に限る。傾き・保
 ## 追加の比較実験
 
 初回の長時間測定でretry attempt件数がウォームアップ後も増加し、コードを再確認すると2048件到達時のみ期限切れを掃除していた。上限付きの不要保持であり、実環境の微増の主因とは未確定。少数件でも毎Evaluateで期限切れ非inflightだけを削除する1行の修正を行い、期限前throttle/inflightを保つ回帰を追加する。既に実行中の変更前60分測定は比較記録として完了させ、同じ固定負荷・Go・GOMEMLIMITで修正後60分を別プロセスで並行測定する。二つのDB/profile出力は分離する。プロセス間のCPU競合とsampled profileの揺らぎがあるため、厳密な性能ベンチマークではなく保持件数と稼働中傾向の比較とする。
+
+短い追加の隔離Scylla認証/TLS試験が旧run約27〜29分・新run約7〜9分付近で同じホストのCPUを利用した（1CPU/384MiBのfixture、計約20秒）。RSSは対象Goプロセス自身の/proc値であり他processのRSSは加算しないが、CPU競合がsample時の作業領域に影響し得る。厳密な制御性能比較ではないことを最終報告にも記載する。
+
+後半の追加観測: 旧run約54分/新run約34分から、同じ隔離Goプロセスの認証済み `/api/v1/runtime` を約50秒間隔で読む。Go Sys、heap idle/releasedとRSSを補足する。これは自然GC中の値で、明示GC直後のmain sampleとは混ぜない。API portは自分が起動した固定名test binaryの所有listen socketだけから選び、一般のホスト/運用サービスはprobeしない。初期区間のidle/releasedは未採取で、後半の補助証拠に限定する。
