@@ -28,5 +28,7 @@
     "no real network partition, packet loss or clock skew",
     "no exactly-once delivery guarantee"
   ],
-  "notifications": 6
+  "notifications": 6,
+  "successful_runs_observed": 2,
+  "artifact_scope": "Latest successful run summary; the tool was executed successfully twice consecutively. Raw logs and payloads were not published."
 }

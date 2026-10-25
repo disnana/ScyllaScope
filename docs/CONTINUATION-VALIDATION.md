@@ -74,11 +74,13 @@ profileの主な差分は、SSE scanner buffer、snapshotのIncident clone/copyT
 
 ## 再現
 
+ブラウザ試験は、別端末で `go run ./cmd/devserver` を起動し、loopbackの8765番で応答することを確認してから実行します。長時間試験の出力先は新しい書込可能ディレクトリを選びます。
+
 ```bash
 ./build.sh
 CHROMIUM_BIN=/path/to/chromium python3 tests/e2e/test_browser.py
-SCYLLASCOPE_LONG_SECONDS=3600 SCYLLASCOPE_LONG_OUTPUT=/private/new-directory GOMEMLIMIT=128MiB go test -timeout=75m -count=1 -v ./internal/monitor -run '^TestLongCollectorSoak$'
-python3 tools/analyze_long_soak.py /private/new-directory/samples.jsonl --output summary.json
+SCYLLASCOPE_LONG_SECONDS=3600 SCYLLASCOPE_LONG_OUTPUT=/tmp/scyllascope-long-new GOMEMLIMIT=128MiB go test -timeout=75m -count=1 -v ./internal/monitor -run '^TestLongCollectorSoak$'
+python3 tools/analyze_long_soak.py /tmp/scyllascope-long-new/samples.jsonl --output summary.json
 python3 tools/plot_long_soak.py summary.json chart.png
 ```
 
