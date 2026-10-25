@@ -38,8 +38,14 @@ The source retains the previous version's explicit pins:
 | gopkg.in/yaml.v3 | v3.0.1 | Real YAML configuration parsing |
 | modernc.org/sqlite | v1.59.0 | Pure-Go production SQLite driver |
 
-These modules are **not bundled** in this ZIP. `./build.sh` resolves them,
-checks module downloads, runs all tests, and creates the production binary.
+Module source trees are not vendored in the source checkout. Prebuilt binaries
+include the production Go dependencies statically. `./build.sh` resolves and
+verifies modules, runs all tests, and creates the production binary.
+`tools/collect-notices.py` appends the exact Go runtime/standard-library license,
+production module root LICENSE/NOTICE/COPYING variants, and frontend notices to
+this document inside each release archive. The archive therefore carries the
+license texts as well as this overview; module sources and private configuration
+are not copied into the distribution.
 The production dependency graph was resolved and go.sum is committed.
 Review `go list -m -json all` and `govulncheck ./...` when updating dependencies.
 A successful build/checksum is not a vulnerability audit.

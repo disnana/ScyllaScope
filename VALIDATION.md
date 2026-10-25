@@ -4,7 +4,7 @@
 
 最新のTopology保存縮小・SSE allocation削減・要素を分けた逐次測定・未完了case・最終検証は[RSS切り分け結果](docs/RSS-ISOLATION-RESULTS.md)を参照してください。前回の60分×2と実Scylla/HA/旧DBは[継続検証結果](docs/CONTINUATION-VALIDATION.md)に履歴として残しています。前回RSS値には同processの試験clientも含まれていました。
 
-**通知・保持・ライフサイクル・不要allocationを修正しましたが、数週間のRSS問題の受け入れは未達です。collectorのloopback Dial失敗2件も未解明として残します。Draftと正式版昇格保留を維持します。**
+**通知・保持・ライフサイクル・不要allocationを修正しましたが、数週間のRSS問題の受け入れは未達です。collectorのloopback Dial失敗2件も未解明として残します。v0.6.3としての配布にも、以下の未検証事項と受入条件を引き継ぎます。**
 
 以下は初回提出時点の履歴です。10分試験や古い件数を現在の最終検証と混同しないでください。
 

@@ -1,9 +1,11 @@
-# Unreleased — stable release preparation
+# 0.6.3 — 2026-10-25
 
 - Import the supplied 0.6.3-rc.2 source while preserving the repository LICENSE and original RC notice. Remove operational examples, raw review logs, internal addresses and identity fixtures.
 - Retire counters for unavailable node identities without falsely resolving incidents.
 - Separate paged notification work and ID lookups from the 500-row display limit; persist unsent opening/recovery work, retain it during pruning and rotate full notification queues fairly.
 - Add Alertmanager grouping, independent protocol conditions, periodic refresh and all-endpoint delivery for HA deployments.
+- Distribute prebuilt Linux AMD64/ARM64 archives with SHA-256 verification and one-command install/update/uninstall; retain configuration/data by default and reuse automatic failure rollback.
+- Preserve the unresolved long-term RSS, native systemd and ARM64 acceptance limits in docs/RELEASE-NOTES.md.
 - Add verified-build installer; include secrets.env in new rollback manifests while reading older manifests without changing that file.
 - Keep hidden topology layouts from resetting zoom centers; strengthen browser filtering assertions.
 - Resolve the real dependency graph and add reproducible SQLite/HTTP soaks and real Alertmanager checks. See VALIDATION.md for measured scope and outstanding release gates.

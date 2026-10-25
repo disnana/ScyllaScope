@@ -1,38 +1,32 @@
 # 導入・更新・アンインストール・切り戻し
 
-正式版は承認待ちです。最初にステージングのsystemdホストで受入試験を行い、1ノードずつ適用します。ScyllaDBのunit・設定・データには変更を加えません。
+正式版v0.6.3の配布手順です。最初にステージングのsystemdホストで受入試験を行い、1ノードずつ適用します。ScyllaDBのunit・設定・データには変更を加えません。
 
-## ビルド
+## ビルド済み配布の3コマンド
 
-```bash
-./build.sh
-sha256sum --check BUILD-VERIFIED.sha256
-./scyllascope version
-```
+利用者のGo/Node/ソースビルドは不要です。公式の3コマンドは[README](README.md#install)を使ってください。配布版は`--version v0.6.3`で固定します。配布元/CPU/checksum/archive/versionの検証をすべて終えてから、既存のCLIによるファイルトランザクションを呼びます。取得/検証失敗時はサービスや導入ファイルを変更しません。
 
-Goは自動更新しません。ビルド失敗時は検証印を取り消し、既存バイナリを残します。raceを省略したビルドは認めません。
+開発者がローカルソースから導入する場合だけ、`./build.sh`成功後に`./tools/install-local.sh`を使います。Goは自動更新しません。ビルド失敗時は検証印を取り消し、既存バイナリを残します。
 
 ## 新規導入
 
 ```bash
-# 必要に応じて新しいファイルへ初期設定を生成。既存設定へ上書きしない。
-./scyllascope init --help
-./install.sh
-sudo systemctl status scyllascope --no-pager
+# ビルド済みv0.6.3を検証して導入
+bash -o pipefail -c 'script=$(curl -fsSL https://raw.githubusercontent.com/disnana/ScyllaScope/main/install.sh) && printf "%s\n" "$script" | bash -s -- install --version v0.6.3'
 ```
 
-インストーラーは専用ユーザー `scyllascope` を作成し、ローカルで検証済みのバイナリを配置します。UIトークンは初回のみ作り、既存の `/etc/scyllascope/config.yaml`、ui-token、secrets.envを保持します。Scylla設定ファイルの読取権限が不足すれば停止し、DBの権限を自動変更しません。実際のトークンは保護された端末で `sudo cat /etc/scyllascope/ui-token` を確認します。
+配布インストーラーは検証済みRelease binaryを使用します。専用ユーザー `scyllascope` を作成し、取得・検証済みのバイナリを配置します。UIトークンは初回のみ作り、既存の `/etc/scyllascope/config.yaml`、ui-token、secrets.envを保持します。Scylla設定ファイルの読取権限が不足すれば停止し、DBの権限を自動変更しません。実際のトークンは保護された端末で `sudo cat /etc/scyllascope/ui-token` を確認します。
 
 ## 更新
 
-現行バイナリ、config.yaml、ui-token、secrets.env、ScyllaScope DB/WAL/SHM、unitと独自drop-inを保全します。稼働中のSQLiteファイルを単純コピーしないでください。組み込み更新処理はScyllaScopeを停止後にバックアップし、更新起動に失敗した場合に復元します。
+現行バイナリ、config.yaml、ui-token、secrets.env、ScyllaScope DB/WAL/SHM、unitをバックアップします。独自drop-inは変更せず残しますが、自動バックアップには含めず別途保全してください。稼働中のSQLiteファイルを単純コピーしないでください。組み込み更新処理はScyllaScopeを停止後にバックアップし、更新起動に失敗した場合に復元します。
 
 ```bash
-# 新しいソースディレクトリでビルド後に実行
-./install.sh
+# ビルド済みv0.6.3を取得して更新
+bash -o pipefail -c 'script=$(curl -fsSL https://raw.githubusercontent.com/disnana/ScyllaScope/main/install.sh) && printf "%s\n" "$script" | bash -s -- update --version v0.6.3'
 ```
 
-既存設定が通常のパスなら引数は不要です。別ファイルを明示的に適用する時だけ `./install.sh --config /private/path/config.yaml` を使います。既存設定の初期化やサンプルへの置換は行いません。
+既存設定が通常のパスなら引数は不要です。ローカルの別ファイルを明示的に適用する時だけ `./tools/install-local.sh --config /private/path/config.yaml` を使います。既存設定の初期化やサンプルへの置換は行いません。
 
 バックアップは `/var/backups/scyllascope/<timestamp>` に0600の実体とmanifestを保存し、全ファイルのsize/SHA-256を復元前に検証します。新しいバックアップはsecrets.envも対象に含みます。RC以前の7エントリのバックアップを読む場合は、secrets.envを変更せず残します。チェックサムのない旧形式は警告を出します。ハッシュは偶発的破損の検出であり、root権限の攻撃者に対する署名ではありません。
 
@@ -40,7 +34,7 @@ sudo systemctl status scyllascope --no-pager
 
 ```bash
 # 新版CLIで最新バックアップを復元
-sudo ./scyllascope service rollback
+sudo /usr/local/bin/scyllascope service rollback
 sudo systemctl status scyllascope --no-pager
 ```
 
@@ -51,14 +45,14 @@ sudo systemctl status scyllascope --no-pager
 ## アンインストール
 
 ```bash
-./uninstall.sh
+bash -o pipefail -c 'script=$(curl -fsSL https://raw.githubusercontent.com/disnana/ScyllaScope/main/install.sh) && printf "%s\n" "$script" | bash -s -- uninstall'
 ```
 
 ScyllaScopeのみ停止・無効化し、配置したバイナリとunitを削除します。設定・資格情報・監視DB・バックアップは既定で保持します。再インストールで再利用できます。
 
 ```bash
 # 設定と監視DBも削除する場合だけ指定
-./uninstall.sh --purge
+sudo /usr/local/bin/scyllascope service uninstall --purge
 ```
 
 `--purge` は `/etc/scyllascope` と `/var/lib/scyllascope` を削除します。切り戻し用バックアップには資格情報が含まれ得るため、公開せず、不要になった後に別途安全に管理してください。
