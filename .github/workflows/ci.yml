@@ -1,5 +1,8 @@
 name: validate
-on: [push, pull_request, workflow_dispatch]
+on: [pull_request, workflow_dispatch]
+concurrency:
+  group: validate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
