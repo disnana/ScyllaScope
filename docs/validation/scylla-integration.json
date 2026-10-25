@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-25",
+  "scope": "disposable local single-node fixture; no production connection or data",
+  "toolchain": "go1.27.3 linux/amd64",
+  "image": "scylladb/scylla:6.2.3",
+  "image_digest": "sha256:2366233080ba65622b9ed1b4588709141c4456efdf923809f012b3711b513006",
+  "image_compressed_bytes": 297166762,
+  "configuration": {
+    "shards": 1,
+    "scylla_memory": "384MiB",
+    "container_memory_limit": "768MiB",
+    "container_cpu_limit": 1,
+    "developer_mode": true,
+    "reactor": "epoll",
+    "seed_exposure": "loopback only",
+    "persistent_operational_volume": false
+  },
+  "environment_constraints": [
+    "Ordinary sandbox denied the Docker socket; the explicitly local Docker socket succeeded using authorized escalated execution.",
+    "No pre-existing Scylla image or fixture was available.",
+    "Seastar saw 500000000 physical bytes and rejected the initial 1GiB fixture configuration. The disposable fixture was recreated once at 384MiB and started successfully.",
+    "Docker advertised a bridge identity different from the loopback seed. The production host filter correctly rejected it until the fixture's verified local Docker network identity was supplied as LocalAddress; the host filter was not weakened."
+  ],
+  "tests": [
+    "Real production CQL adapter Query of system.local",
+    "Real system.cluster_status Discover returning one fixture node",
+    "Pre-canceled discovery context rejected",
+    "Query fails while disposable database is stopped within the failure budget",
+    "Same production adapter reconnects successfully after database restart",
+    "Query after adapter Close is rejected"
+  ],
+  "normal_result": {"status": "PASS", "package_seconds": 9.176},
+  "race_result": {"status": "PASS", "package_seconds": 10.538, "race_detected": false},
+  "adapter_defects_reproduced": [],
+  "not_tested": [
+    "authentication",
+    "TLS/CA/hostname verification",
+    "cancellation during initial session creation",
+    "multi-node topology and partitions",
+    "versions other than the pinned 6.2.3 image",
+    "long-duration CQL allocation behavior"
+  ],
+  "cleanup": "The dedicated fixture container was removed and absence was verified; downloaded image retained as a development cache.",
+  "reproduction": "tests/integration/README.md",
+  "raw_logs_published": false
+}

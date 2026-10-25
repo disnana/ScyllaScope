@@ -98,3 +98,33 @@ func backupDigest(path string) (int64, string, error) {
 	}
 	return size, hex.EncodeToString(hash.Sum(nil)), nil
 }
+
+// Reject redirected installation roots before chmod/chown, backup or removal.
+// Managed default paths are the only paths supported by the native installer.
+func checkManagedParents(files []string, backupRoot string) error {
+	dirs := map[string]bool{}
+	for _, file := range append(append([]string{}, files...), filepath.Join(backupRoot, "manifest.json")) {
+		for dir := filepath.Dir(file); dir != "/" && dir != "."; dir = filepath.Dir(dir) {
+			dirs[dir] = true
+		}
+	}
+	for dir := range dirs {
+		info, err := os.Lstat(dir)
+		if os.IsNotExist(err) {
+			continue
+		}
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
+			return fmt.Errorf("refusing non-directory or symlinked managed parent %s", dir)
+		}
+	}
+	return nil
+}
+func validatePriorService(active, enabled, unitPresent bool) error {
+	if (active || enabled) && !unitPresent {
+		return fmt.Errorf("existing ScyllaScope service is active/enabled without the managed unit file; custom/vendor units require manual migration before installation")
+	}
+	return nil
+}

@@ -210,3 +210,41 @@ func TestNewManifestIncludesSecretsAndOldManifestLeavesItUntouched(t *testing.T)
 		t.Fatal(m, err)
 	}
 }
+
+func TestManagedParentsRejectRedirectBeforeAnyWrite(t *testing.T) {
+	root := t.TempDir()
+	outside := filepath.Join(root, "scylla-sentinel")
+	if err := os.Mkdir(outside, 0700); err != nil {
+		t.Fatal(err)
+	}
+	sentinel := filepath.Join(outside, "data")
+	if err := os.WriteFile(sentinel, []byte("untouched"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	redirected := filepath.Join(root, "scyllascope")
+	if err := os.Symlink(outside, redirected); err != nil {
+		t.Fatal(err)
+	}
+	if err := checkManagedParents([]string{filepath.Join(redirected, "monitor.db")}, filepath.Join(root, "backups")); err == nil {
+		t.Fatal("redirected state root accepted")
+	}
+	info, _ := os.Stat(outside)
+	data, _ := os.ReadFile(sentinel)
+	if info.Mode().Perm() != 0700 || string(data) != "untouched" {
+		t.Fatal("external directory changed")
+	}
+	if err := checkManagedParents([]string{filepath.Join(root, "missing", "monitor.db")}, filepath.Join(root, "backups")); err != nil {
+		t.Fatal("new installation rejected", err)
+	}
+}
+func TestActiveOrEnabledUnmanagedServiceRejected(t *testing.T) {
+	for _, state := range []struct {
+		active, enabled, present bool
+		reject                   bool
+	}{{true, false, false, true}, {false, true, false, true}, {true, true, true, false}, {false, false, false, false}} {
+		err := validatePriorService(state.active, state.enabled, state.present)
+		if (err != nil) != state.reject {
+			t.Fatalf("state=%+v error=%v", state, err)
+		}
+	}
+}

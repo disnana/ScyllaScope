@@ -100,6 +100,9 @@ func requireRoot() error {
 	return nil
 }
 func checkManagedPaths() error {
+	if err := checkManagedParents(managed, backups); err != nil {
+		return err
+	}
 	for _, p := range managed {
 		fi, e := os.Lstat(p)
 		if e == nil && !fi.Mode().IsRegular() {
@@ -338,6 +341,20 @@ func Install(sourceConfig string, c *settings.Config) (retErr error) {
 	if c.Storage.SQLitePath != "/var/lib/scyllascope/scyllascope.db" {
 		return fmt.Errorf("service installer currently supports the default state path only; use a manually reviewed systemd unit for %q", c.Storage.SQLitePath)
 	}
+	// Check manager availability before staging files or creating an account.
+	// is-active/is-enabled alone cannot distinguish an absent unit from no bus.
+	if err := command("show", "--property=Version", "--value"); err != nil {
+		return fmt.Errorf("systemd manager unavailable: %w", err)
+	}
+	active := exec.Command("systemctl", "is-active", "--quiet", "scyllascope").Run() == nil
+	enabled := exec.Command("systemctl", "is-enabled", "--quiet", "scyllascope").Run() == nil
+	_, unitErr := os.Stat(managed[1])
+	if e := validatePriorService(active, enabled, unitErr == nil); e != nil {
+		return e
+	}
+	if unitErr != nil && !os.IsNotExist(unitErr) {
+		return unitErr
+	}
 	// Stage the config bytes before stopping anything, including when input=destination.
 	var configBytes []byte
 	if sourceConfig != "" {
@@ -379,9 +396,7 @@ func Install(sourceConfig string, c *settings.Config) (retErr error) {
 			return fmt.Errorf("scyllascope user cannot read %s; grant read-only access to that file and its parent directory, then retry; no DB permissions were changed", c.Scylla.ConfigPath)
 		}
 	}
-	active := exec.Command("systemctl", "is-active", "--quiet", "scyllascope").Run() == nil
-	enabled := exec.Command("systemctl", "is-enabled", "--quiet", "scyllascope").Run() == nil
-	if _, e = os.Stat(managed[1]); e == nil {
+	if active || unitErr == nil {
 		if e = command("stop", "scyllascope"); e != nil {
 			return e
 		}
@@ -547,6 +562,9 @@ func Uninstall(purge bool) error {
 		return lockErr
 	}
 	defer unlock()
+	if err := checkManagedPaths(); err != nil {
+		return err
+	}
 	if e := command("disable", "--now", "scyllascope"); e != nil {
 		return e
 	}

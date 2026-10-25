@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"scyllascope/internal/model"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -14,6 +15,7 @@ import (
 func alertLabels(cluster string, v model.Incident) map[string]string {
 	labels := map[string]string{"alertname": "ScyllaScopeIncident", "cluster": cluster, "node": v.Node, "kind": v.Kind}
 	labels["observer"] = v.Observer
+	labels["incident_id"] = v.ID
 	return labels
 }
 func (e *Engine) sendAlertmanager(ctx context.Context, v model.Incident, recovery bool) error {
@@ -30,11 +32,25 @@ func (e *Engine) sendAlertmanager(ctx context.Context, v model.Incident, recover
 	}
 	// Send to every HA member. Local persisted incidents retry after outages.
 	// At least one durable notification service must accept before marking sent.
+	// Posting to each endpoint concurrently keeps a timed-out member from
+	// delaying requests to a healthy member. Configuration permits at most 8;
+	// keep that bound even for internal callers using an unvalidated config.
+	urls := e.cfg.Notifications.AlertmanagerURLs
+	urls = urls[:min(len(urls), 8)]
+	results := make(chan bool, len(urls))
+	var requests sync.WaitGroup
+	for _, base := range urls {
+		requests.Add(1)
+		go func(base string) {
+			defer requests.Done()
+			results <- e.post(ctx, strings.TrimRight(base, "/")+"/api/v2/alerts", body) == nil
+		}(base)
+	}
+	requests.Wait()
+	close(results)
 	accepted := false
-	for _, base := range e.cfg.Notifications.AlertmanagerURLs {
-		if e.post(ctx, strings.TrimRight(base, "/")+"/api/v2/alerts", body) == nil {
-			accepted = true
-		}
+	for ok := range results {
+		accepted = accepted || ok
 	}
 	if !accepted {
 		return fmt.Errorf("all Alertmanager endpoints failed")

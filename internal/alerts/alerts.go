@@ -19,7 +19,11 @@ import (
 )
 
 type signal struct{ key, node, kind, severity, message string }
-type track struct{ bad, good int }
+type track struct {
+	bad, good int
+	sample    time.Time
+	done      bool
+}
 type job struct {
 	incident model.Incident
 	recovery bool
@@ -89,68 +93,37 @@ func (e *Engine) Evaluate(ctx context.Context, s model.Snapshot) {
 			add(edge.To, "asymmetric", "warning", "方向別の接続結果が不一致: "+edge.From+" → "+edge.To)
 		}
 	}
-	existing := map[string]model.Incident{}
-	var err error
-	boundary := e.notifyCursor
-	for pass := 0; pass < 2; pass++ {
-		cursor := ""
-		if pass == 0 {
-			cursor = boundary
-		}
-		for {
-			page, readErr := e.store.WorkIncidents(cursor, 256)
-			if readErr != nil {
+	// Process durable work a page at a time. Only matching current signals need
+	// a seen set: retaining every retired open incident recreates growing heap
+	// peaks even after its confirmation counter has been released.
+	matched := map[string]bool{}
+	evaluate := func(k string, v model.Incident, open bool) {
+		if open && e.enabled() && v.LastNotifiedAt == nil && !v.NotificationPending {
+			v.NotificationPending = true
+			if err := e.store.PutIncident(v); err != nil {
 				return
 			}
-			if len(page) == 0 {
-				break
-			}
-			if pass == 1 && (boundary == "" || page[0].ID > boundary) {
-				break
-			}
-			for _, v := range page {
-				cursor = v.ID
-				if pass == 1 && (boundary == "" || v.ID > boundary) {
-					break
-				}
-				if v.Observer != e.cfg.NodeID {
-					continue
-				}
-				if v.ResolvedAt == nil {
-					existing[fingerprint(v.Observer, v.Kind, v.Node)] = v
-				} else if v.NotificationPending && v.LastNotifiedAt == nil {
-					e.enqueue(v, false, now)
-				} else if v.RecoveryPending {
-					e.enqueue(v, true, now)
-				}
-			}
 		}
-	}
-	keys := map[string]bool{}
-	for k := range signals {
-		keys[k] = true
-	}
-	for k := range existing {
-		keys[k] = true
-	}
-	for k := range keys {
 		t := e.tracks[k]
 		if t == nil {
 			t = &track{}
 			e.tracks[k] = t
 		}
-		v, open := existing[k]
 		sig, bad := signals[k]
+		sampled := t.sample.Equal(now)
+		t.sample = now
 		if bad {
 			t.good = 0
-			t.bad = min(t.bad+1, e.cfg.Monitoring.FailureWindow)
+			if !sampled {
+				t.bad = min(t.bad+1, e.cfg.Monitoring.FailureWindow)
+			}
 			if !open && t.bad < e.cfg.Monitoring.FailureWindow {
-				continue
+				return
 			}
 			if !open {
 				v = model.Incident{ID: fingerprint(e.cfg.NodeID+"@"+now.UTC().Format(time.RFC3339Nano), sig.kind, sig.node), Observer: e.cfg.NodeID, Node: sig.node, Kind: sig.kind, Severity: sig.severity, Message: sig.message, OpenedAt: now, UpdatedAt: now, NotificationPending: e.enabled()}
-				if err = e.store.PutIncident(v); err != nil {
-					continue
+				if err := e.store.PutIncident(v); err != nil {
+					return
 				}
 				_ = e.store.Add(model.Event{Time: now, Severity: sig.severity, Type: "incident_opened", Node: sig.node, Message: "[" + e.cfg.NodeName + "] " + sig.message})
 			} else {
@@ -198,28 +171,72 @@ func (e *Engine) Evaluate(ctx context.Context, s model.Snapshot) {
 				// Unavailable/retired identities must not accumulate counters forever.
 				// The incident remains durable; only consecutive evidence is reset.
 				delete(e.tracks, k)
+				e.enqueue(v, false, now)
 				t.good = 0
-				continue
+				return
 			}
 			t.bad = 0
-			t.good = min(t.good+1, e.cfg.Monitoring.RecoveryWindow)
+			if !sampled {
+				t.good = min(t.good+1, e.cfg.Monitoring.RecoveryWindow)
+			}
 			if t.good < e.cfg.Monitoring.RecoveryWindow {
-				continue
+				return
 			}
 			v.ResolvedAt = &now
 			v.RecoveryPending = v.LastNotifiedAt != nil && !v.Acknowledged
 			v.UpdatedAt = now
 			if e.store.PutIncident(v) != nil {
-				continue
+				return
 			}
 			_ = e.store.Add(model.Event{Time: now, Severity: "info", Type: "incident_resolved", Node: v.Node, Message: "[" + e.cfg.NodeName + "] 復旧: " + v.Message, Resolved: true})
 			e.enqueue(v, true, now)
-			delete(e.tracks, k)
+			t.done = true
+		}
+	}
+	boundary := e.notifyCursor
+	for pass := 0; pass < 2; pass++ {
+		cursor := ""
+		if pass == 0 {
+			cursor = boundary
+		}
+		for {
+			page, err := e.store.WorkIncidents(cursor, 256)
+			if err != nil {
+				return
+			}
+			if len(page) == 0 || (pass == 1 && (boundary == "" || page[0].ID > boundary)) {
+				break
+			}
+			for _, v := range page {
+				cursor = v.ID
+				if pass == 1 && v.ID > boundary {
+					break
+				}
+				if v.Observer != e.cfg.NodeID {
+					continue
+				}
+				if v.ResolvedAt == nil {
+					k := fingerprint(v.Observer, v.Kind, v.Node)
+					if _, ok := signals[k]; ok {
+						matched[k] = true
+					}
+					evaluate(k, v, true)
+				} else if v.NotificationPending && v.LastNotifiedAt == nil {
+					e.enqueue(v, false, now)
+				} else if v.RecoveryPending {
+					e.enqueue(v, true, now)
+				}
+			}
+		}
+	}
+	for k := range signals {
+		if !matched[k] {
+			evaluate(k, model.Incident{}, false)
 		}
 	}
 	// Retire pending signals that recovered before their confirmation window.
-	for k := range e.tracks {
-		if !keys[k] {
+	for k, t := range e.tracks {
+		if t.done || !t.sample.Equal(now) {
 			delete(e.tracks, k)
 		}
 	}
@@ -302,16 +319,34 @@ func (e *Engine) enqueue(v model.Incident, recovery bool, now time.Time) {
 	default:
 	}
 }
+
+const deliveryWorkers = 32
+
 func (e *Engine) Run(ctx context.Context) {
-	defer e.http.CloseIdleConnections()
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case j := <-e.queue:
-			e.deliver(ctx, j)
-		}
+	// A finite pool prevents one slow destination from starving all other work.
+	// Jobs remain in SQLite; cancellation can leave queued jobs for the restart.
+	var workers sync.WaitGroup
+	for i := 0; i < deliveryWorkers; i++ {
+		workers.Add(1)
+		go func() {
+			defer workers.Done()
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				default:
+				}
+				select {
+				case <-ctx.Done():
+					return
+				case j := <-e.queue:
+					e.deliver(ctx, j)
+				}
+			}
+		}()
 	}
+	workers.Wait()
+	e.http.CloseIdleConnections()
 }
 func (e *Engine) deliver(ctx context.Context, j job) {
 	current, lookupErr := e.store.Incident(j.incident.ID)
@@ -414,4 +449,20 @@ func (e *Engine) Action(id string, ack bool, until *time.Time) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	return e.store.UpdateIncidentAction(id, ack, until)
+}
+
+// Stats exposes bounded bookkeeping counts, never incident IDs or credentials.
+type Stats struct {
+	Tracks        int `json:"tracks"`
+	Inflight      int `json:"inflight"`
+	Attempts      int `json:"attempts"`
+	Queued        int `json:"queued"`
+	QueueCapacity int `json:"queue_capacity"`
+	Workers       int `json:"workers"`
+}
+
+func (e *Engine) Stats() Stats {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	return Stats{Tracks: len(e.tracks), Inflight: len(e.inflight), Attempts: len(e.lastAttempt), Queued: len(e.queue), QueueCapacity: cap(e.queue), Workers: deliveryWorkers}
 }
