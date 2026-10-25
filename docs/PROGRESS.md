@@ -1,3 +1,15 @@
+## 10:26 UTC: 現在の継続状況
+
+60秒診断は約10:07:28–10:08:28 UTC成功（時刻はsampleから復元）。collector再確認は10:09:45–10:17:27、461.53秒でCQL Dial 200ms timeoutにより停止。直後のTCP接続成功、元の原因は未特定。両失敗と診断成功を残し、collectorの3回目は行っていない。production処理やtimeoutを変更していない。
+
+JSONのみは10:19:03 UTC開始、10:26時点で約430秒・JSON処理3849回・RSS15.79MiB、処理成立。測定は中断せず継続中。続くJSON/SSE15分・通知15分・compact18分を含め、残り約51分、終了見込み11:18 UTC。初回collectorの未完了を成功へ置換せず、最終のbuild/test/race/browser/CIとPR更新は測定後に行う。
+
+## 10:17:27 UTC: collector再確認も停止、独立caseへ進む
+
+collector再確認は461.53秒で停止。CQL OPTIONS用Dial(127.0.0.3のfixture)が200msでi/o timeout、直後のInternode TCP接続は0.53msで成功。fixtureの非EOF読込/書込失敗は0、最大handler開始遅延14.11ms、最大header読込182.59ms。メモリ閾値超過ではなく、接続の失敗原因は未特定。2件の失敗と60秒成功の全証拠を保持し、collectorの追加実行はしない。
+
+JSONのみ10分→JSON/SSE15分→通知15分→SQLite compact18分を原binaryで順次実行する。collectorは未完了のまま報告し、他caseの成立条件を確認する。全体wall-clock見込みは約11:16 UTCへ更新、測定時間上限95分は維持。
+
 ## 10:04:40 UTC: collectorケース停止
 
 collector_fixedが15.52秒でループバックprobeの成立検証に失敗。停止条件に従いrunnerは後続JSON/SSE/通知/compactを実行せず終了した。idle/SQLiteの完走データは保持し、失敗caseも削除しない。fixtureと本体のどちらの不具合か、probe詳細を追加して最大60秒の診断を1回行う。完了見込み11:19 UTCは停止により更新が必要。測定中の強制GC・cache削除・本番変更は行っていない。
