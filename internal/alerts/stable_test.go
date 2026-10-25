@@ -131,3 +131,61 @@ func TestPendingQueueRotatesAcrossPages(t *testing.T) {
 		t.Fatal("starved work", len(seen))
 	}
 }
+
+func TestAlertmanagerOutagePersistsOpeningAndRecoveryAcrossRestart(t *testing.T) {
+	e, _ := fixture()
+	path := filepath.Join(t.TempDir(), "pending.db")
+	st, err := store.Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	available := false
+	calls := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		if !available {
+			w.WriteHeader(503)
+			return
+		}
+		w.WriteHeader(200)
+	}))
+	defer srv.Close()
+	e.cfg.Notifications.AlertmanagerURLs = []string{srv.URL}
+	e.store = st
+	now := time.Now()
+	v := model.Incident{ID: "pending", Observer: e.cfg.NodeID, Kind: "node_health/cql", Node: "target", OpenedAt: now.Add(-time.Minute), UpdatedAt: now, ResolvedAt: &now, NotificationPending: true}
+	if err = st.PutIncident(v); err != nil {
+		t.Fatal(err)
+	}
+	e.deliver(context.Background(), job{v, false})
+	v, _ = st.Incident(v.ID)
+	if !v.NotificationPending || v.LastNotifiedAt != nil || v.DeliveryError == "" {
+		t.Fatal("failed delivery lost work", v)
+	}
+	st.Close()
+	st, err = store.Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer st.Close()
+	e = New(e.cfg, st)
+	available = true
+	e.Evaluate(context.Background(), testkit.Snapshot(now.Add(time.Second)))
+	if len(e.queue) != 1 {
+		t.Fatal("opening lost on restart")
+	}
+	e.deliver(context.Background(), <-e.queue)
+	v, _ = st.Incident(v.ID)
+	if v.NotificationPending || !v.RecoveryPending {
+		t.Fatal("recovery not durable", v)
+	}
+	e.Evaluate(context.Background(), testkit.Snapshot(now.Add(2*e.cfg.Notifications.RetryInterval)))
+	if len(e.queue) != 1 {
+		t.Fatal("recovery lost")
+	}
+	e.deliver(context.Background(), <-e.queue)
+	v, _ = st.Incident(v.ID)
+	if v.RecoveryPending || v.RecoveryNotifiedAt == nil || calls != 3 {
+		t.Fatal(v, calls)
+	}
+}

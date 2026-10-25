@@ -12,7 +12,7 @@ Go HTTP API ── immutable snapshots ── Monitor
     │                                 ├─ local REST / metrics / systemd
     │                                 └─ authenticated peer observations
     ├─ SQLite history / events / incidents
-    └─ Alert engine → Discord / Generic webhook
+    └─ Alert engine → Alertmanager (grouped / HA) or direct webhook
 ```
 
 ## Frontend

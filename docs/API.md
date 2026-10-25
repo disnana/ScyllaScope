@@ -15,7 +15,7 @@ POSTは `Content-Type: application/json` と `X-ScyllaScope-Request: 1`、同一
 | GET | /api/v1/stream | SSE `snapshot` / `auth_expired` |
 | POST | /api/v1/refresh | 監視更新。実行中ならbusy |
 | GET | /api/v1/events?limit=100 | 上限500 |
-| GET | /api/v1/incidents?all=1 | active/復旧履歴 |
+| GET | /api/v1/incidents?all=1 | active/復旧履歴（表示用の最新500件。通知処理は独立したページ取得） |
 | POST | /api/v1/incidents/action | `{"id":"...","action":"ack"}`、snooze/resume。snoozeはminutes:15/60/1440 |
 | GET | /api/v1/history?hours=6 | 監視サンプル。時間範囲は保存期間に制限 |
 | POST | /api/v1/query | `{"cql":"SELECT * FROM system.cluster_status;"}`。既定無効 |

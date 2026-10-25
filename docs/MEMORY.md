@@ -9,7 +9,7 @@ RCの対策を確認しました: 型付きsnapshot clone、SSE容量1の更新�
 受入計画:
 
 1. 同条件の旧版・新版で、最低2〜4週間の実時間観測を実施。更新、ノード入替、peer断、通知先停止と復旧、UI再接続、履歴pruneを含める。
-2. `tools/observe_process.py --duration 1209600 --interval 60 --output <private-path>` でRSS、FD等を保存。出力は公開しない。認証付き `/api/v1/runtime` のheap/GC/goroutineと、監視DBサイズ、ノード/インシデント数を併せて記録。
+2. `tools/observe_process.py --duration 604800 --interval 60 --output <private-path>` で1週間ずつRSS、FD等を保存し、別ファイルへ2〜4回続ける。出力は公開しない。認証付き `/api/v1/runtime` のheap/GC/goroutineと、監視DBサイズ、ノード/インシデント数を併せて記録。
 3. ウォームアップ後の同じ負荷・GC周期で比較。RSSとheap-inuse/heap-alloc、mmap/page cache、GC返却待ちを分ける。FD/goroutine/保持identityに継続増加がないか確認。
 4. heapが増える場合は許可されたステージング環境で限定的にheap profileを取得し、差分の保持元を追跡。公開pprofは追加していません。
 5. 単一の開始値と終了値だけでは合格にしない。日ごとの傾向、負荷/DBサイズの変化、旧版との差、増加の再現性を根拠に判断。
