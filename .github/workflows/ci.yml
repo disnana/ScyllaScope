@@ -27,6 +27,10 @@ jobs:
           node --test web/test/*.test.mjs
       - name: Build preflight failure regressions
         run: python3 tools/test_build_gate.py
+      - name: Isolation health/resource classification regressions
+        run: |
+          python3 tools/test_isolation_runner.py
+          go test -race -tags=memory.counters -run '^TestIsolationProbe' -count=1 ./internal/monitor
       - name: Full dependency tests and production build
         env:
           SCYLLASCOPE_RACE_TESTS: '1'

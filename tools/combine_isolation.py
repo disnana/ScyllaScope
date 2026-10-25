@@ -29,7 +29,7 @@ cases=[selected[mode] for mode in ORDER if mode in selected]
 result={'schema_version':1,'run_records':run_records,'selected_cases':cases,'prior_attempts':prior,
         'all_required_cases_present':len(cases)==len(ORDER),
         'all_selected_cases_completed_successfully':len(cases)==len(ORDER) and all(c['case_completed_successfully'] for c in cases),
-        'any_failed_attempt':any(c['manifest_state']=='failed' for c in cases+prior),
+        'any_failed_attempt':any(c['manifest_state'] in ('failed','degraded') for c in cases+prior),
         'memory_acceptance':'undetermined',
         'limitations':['Collector uses diagnostic-only test changes; production sources unchanged. See per-case source and binary hashes.',
                        'Original SQLite full and compact cases must have identical binary hashes for their direct comparison.',

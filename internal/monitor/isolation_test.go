@@ -114,6 +114,7 @@ func TestIsolationMemory(t *testing.T) {
 	var server *httptest.Server
 	var probeCleanup func()
 	var probeCount *atomic.Int64
+	var probeHealth isolationProbeHealth
 	var receiver *exec.Cmd
 	var receiverDone chan error
 	receiverWaited := false
@@ -337,6 +338,13 @@ func TestIsolationMemory(t *testing.T) {
 				}
 			}
 		}
+		out["probe_health_failed"] = probeHealth.failed()
+		out["cql_probe_failures"] = probeHealth.cqlFailures
+		out["tcp_probe_failures"] = probeHealth.tcpFailures
+		out["probe_health_observations"] = probeHealth.observations
+		if mode == "collector_fixed" {
+			out["probe_health_last_failures"] = probeHealth.snapshot()
+		}
 		for k, v := range repository.counts() {
 			out[k] = v
 		}
@@ -462,14 +470,9 @@ func TestIsolationMemory(t *testing.T) {
 					mon.mu.RLock()
 					current := mon.snapshot
 					mon.mu.RUnlock()
-					if len(current.Nodes) != 3 || len(current.Incidents) != 500 || !current.Discovery.OK {
-						err = fmt.Errorf("collector fixture counts/discovery changed")
-					}
-					for _, node := range current.Nodes {
-						if !node.CQL.OK || !node.Internode.OK {
-							err = fmt.Errorf("loopback probe fixture failed node=%s CQL=%+v Internode=%+v collect_ms=%f", node.Address, node.CQL, node.Internode, current.CollectDurationMS)
-						}
-					}
+					err = isolationObserveCollectorSnapshot(current, &probeHealth, func(index int, protocol string, check model.Check) {
+						t.Logf("private first probe health NG node_index=%d protocol=%s latency=%s message=%s", index, protocol, check.Latency, check.Message)
+					})
 				}
 			case "json_only":
 				snapshot.GeneratedAt = time.Now()
@@ -540,5 +543,5 @@ func TestIsolationMemory(t *testing.T) {
 	runtime.KeepAlive(sqlite)
 	runtime.KeepAlive(cfg)
 	runtime.KeepAlive(source)
-	t.Logf("PASS isolation mode=%s measured_seconds=%d operations=%d input_json_bytes=%d", mode, seconds, operations, fixedBytes)
+	t.Logf("RESOURCE_COMPLETE isolation mode=%s measured_seconds=%d operations=%d input_json_bytes=%d probe_health_failed=%t cql_failures=%d tcp_failures=%d", mode, seconds, operations, fixedBytes, probeHealth.failed(), probeHealth.cqlFailures, probeHealth.tcpFailures)
 }

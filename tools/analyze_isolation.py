@@ -19,7 +19,7 @@ MODES = {
     "json_only", "json_sse", "notification",
 }
 STATES = {
-    "pass", "failed", "running", "wall_timeout", "rss_limit",
+    "pass", "degraded", "failed", "running", "wall_timeout", "rss_limit",
     "sampler_stalled", "not_run", "unknown",
 }
 PHASES = {"baseline", "sample", "warmup_complete", "end", "post_stop_gc"}
@@ -35,6 +35,7 @@ COUNT_KEYS = (
     "repository_incidents", "repository_topology_rows", "repository_topology_nodes",
     "repository_topology_incidents", "repository_history_rows", "repository_event_rows",
     "sqlite_topology_rows", "sqlite_history_rows", "sqlite_incident_rows",
+    "cql_probe_failures", "tcp_probe_failures", "probe_health_observations",
 )
 CUMULATIVE_KEYS = (
     "operations", "codec_operations", "codec_bytes", "successful_cql_probes",
@@ -51,6 +52,7 @@ CONFIG_KEYS = (
 BOOLEAN_KEYS = (
     "allocator_counters_enabled", "operation_payload_bytes_measured", "parent_process_only",
     "heap_alloc_is_live_heap", "sampler_allocations_included", "measurement_gc_forced",
+    "probe_health_failed",
 )
 ENGINE_KEYS = ("tracks", "inflight", "attempts", "queued", "queue_capacity", "workers")
 CLIENT_KEYS = ("snapshot_gets", "received_bytes", "errors", "payload_min", "payload_max")
@@ -102,6 +104,20 @@ def clean_sample(raw, expected_mode):
         raw.get("slope_eligible") is True and phase == "sample"
         and raw.get("measurement_gc_forced") is not True
     )
+    details=[]
+    raw_details=raw.get("probe_health_last_failures")
+    if isinstance(raw_details,list):
+        for slot in raw_details[:6]:
+            if not isinstance(slot,dict) or slot.get("protocol") not in ("cql","tcp") or type(slot.get("node_index")) is not int or not 0<=slot["node_index"]<3:
+                continue
+            item={"node_index":slot["node_index"],"protocol":slot["protocol"]}
+            add_numbers(item,slot,("observations","failures"))
+            last=slot.get("last_failure")
+            if isinstance(last,dict) and last.get("phase") in ("dial","read","write","tls","protocol","unknown"):
+                item["last_failure"]={"phase":last["phase"],"attempted_at_utc":safe_time(last.get("attempted_at_utc")),"checked_at_utc":safe_time(last.get("checked_at_utc"))}
+                add_numbers(item["last_failure"],last,("latency_ns",))
+            details.append(item)
+    if details:row["probe_health_last_failures"]=details
     add_numbers(row, raw.get("engine"), ENGINE_KEYS, "engine.")
     client = raw.get("external_client")
     add_numbers(row, client, CLIENT_KEYS, "client.")
@@ -275,6 +291,8 @@ def analyze_case(root, mode, planned_seconds, planned_warmup, entry):
         "planned_duration_seconds": planned_seconds, "planned_warmup_seconds": planned_warmup,
         "observed_manifest_wall_seconds": numeric_meta(entry, "wall_seconds"),
         "case_completed_successfully": state == "pass" and numeric_meta(entry, "exit_code") == 0,
+        "resource_workload_completed": state in ("pass", "degraded") and numeric_meta(entry, "exit_code") == 0,
+        "probe_health_failed": any(r.get("probe_health_failed") is True for r in rows),
         "analysis_evidence_usable": bool(rows) and len(eligible) >= 2 and not issues,
         "samples_total": len(rows), "slope_eligible_samples": len(eligible),
         "eligible_start_seconds": start, "eligible_end_seconds": end,
