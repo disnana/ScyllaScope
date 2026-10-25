@@ -1,3 +1,11 @@
+## 追加継続: collectorの停止判定修正とSave-only比較
+
+既存20秒syscall追跡は80refresh/480接続成功。自身のtest childのgetsockoptに250ms遅延を注入すると、SO_ERROR=0/accept済みでもCQL200ms deadline NGとなる機構と旧harness即fatalを短く再現。元2件の実際のscheduler/kernel/quota原因を証明したものではない。
+
+f6f941fでmemory resourceとCQL/TCP健康判定を分離。固定6slot/初回最大6log、累積NGは回復後も保持。実注入smokeはcollector資源完走/health degraded→後続json_only pass→controller exit2。runner4回帰、tracker2回帰/race成功。追加短caseを含め93.82分、95分以内。
+
+SQLiteはLoad startup1回/以後Saveのみを実SQLiteで追加比較。full393216B保存/1,014,019Go B per Save、compact2970B保存/10,488Go B per Save（caller metadata抽出込み）。RSS推定に換算しない。新資料docs/COLLECTOR-FOLLOWUP.mdに保持owner/上限/具体的追加VM・長期・実systemd条件を明記。production runtimeは58b5dbbから不変。final CIを確認してPR更新する。
+
 ## 11:28 UTC: 全予定case終了、最終資料/CIへ
 
 修正後json_sse360秒は11:20:55–11:26:57 UTCに成功。case process合計5586.281秒（93.10分）、失敗/60秒診断/確認を含め95分以内。各case別processで最長18分、単一93分の連続稼働ではない。旧60分×2も根拠として再利用した。

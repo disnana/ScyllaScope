@@ -1,5 +1,7 @@
 # 現在の検証状況
 
+最新のcollector停止の分類修正、注入回帰、本番どおりのSave-only比較、追加環境の具体条件は[追加切り分け](docs/COLLECTOR-FOLLOWUP.md)を参照してください。元の2件の低層遅延原因は未確定、health NGと資源判定を分離しました。
+
 最新のTopology保存縮小・SSE allocation削減・要素を分けた逐次測定・未完了case・最終検証は[RSS切り分け結果](docs/RSS-ISOLATION-RESULTS.md)を参照してください。前回の60分×2と実Scylla/HA/旧DBは[継続検証結果](docs/CONTINUATION-VALIDATION.md)に履歴として残しています。前回RSS値には同processの試験clientも含まれていました。
 
 **通知・保持・ライフサイクル・不要allocationを修正しましたが、数週間のRSS問題の受け入れは未達です。collectorのloopback Dial失敗2件も未解明として残します。Draftと正式版昇格保留を維持します。**

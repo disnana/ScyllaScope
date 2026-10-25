@@ -1,5 +1,7 @@
 # RSS切り分け・allocation削減の最終検証
 
+後続の[collector追加切り分け](COLLECTOR-FOLLOWUP.md)で、probe NGと資源trialの混同を修正し、短い注入回帰と本番どおりSave-only比較を追加した。本書の数値・失敗2件は当時の証拠として保持する。
+
 長期RSS問題の受け入れ判定は**未達**。根拠のあるTopology縮小とSSEの不要コピー削減は実装・回帰済みだが、数週間の解消は証明していない。collectorのloopback接続失敗2件も未解明として保持した。マージ・タグ・正式公開は行わない。
 
 ## 修正と根拠
