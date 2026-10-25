@@ -339,3 +339,53 @@ func TestBoundedWorkersProgressPastSlowHAEndpointAndWaitForShutdown(t *testing.T
 		t.Fatal("delivery workers did not shut down")
 	}
 }
+
+func TestSparseRetryBookkeepingExpiresWithoutReachingHardCap(t *testing.T) {
+	e, _ := fixture()
+	now := time.Now()
+	retry := e.cfg.Notifications.RetryInterval
+	e.lastAttempt["expired"] = now.Add(-retry)
+	e.lastAttempt["young"] = now.Add(-retry / 2)
+	e.lastAttempt["inflight"] = now.Add(-2 * retry)
+	e.inflight["inflight"] = true
+	e.Evaluate(context.Background(), testkit.Snapshot(now))
+	if _, ok := e.lastAttempt["expired"]; ok {
+		t.Fatal("sparse expired attempt retained")
+	}
+	if _, ok := e.lastAttempt["young"]; !ok {
+		t.Fatal("young throttle removed")
+	}
+	if _, ok := e.lastAttempt["inflight"]; !ok {
+		t.Fatal("inflight throttle removed")
+	}
+	if len(e.lastAttempt) != 2 {
+		t.Fatal(e.Stats())
+	}
+}
+
+func TestSparseRetryCleanupPreservesIntervalBoundary(t *testing.T) {
+	e, _ := fixture()
+	e.cfg.Notifications.GenericWebhook = "http://127.0.0.1:1"
+	now := time.Now()
+	retry := e.cfg.Notifications.RetryInterval
+	v := model.Incident{ID: "retry-boundary"}
+	e.enqueue(v, false, now)
+	if len(e.queue) != 1 {
+		t.Fatal("initial attempt was not queued")
+	}
+	<-e.queue
+	delete(e.inflight, v.ID) // simulate a completed unsuccessful attempt
+	e.Evaluate(context.Background(), testkit.Snapshot(now.Add(retry-time.Nanosecond)))
+	e.enqueue(v, false, now.Add(retry-time.Nanosecond))
+	if len(e.queue) != 0 {
+		t.Fatal("attempt retried before interval elapsed")
+	}
+	e.Evaluate(context.Background(), testkit.Snapshot(now.Add(retry)))
+	if _, ok := e.lastAttempt[v.ID]; ok {
+		t.Fatal("expired throttle retained at interval boundary")
+	}
+	e.enqueue(v, false, now.Add(retry))
+	if len(e.queue) != 1 {
+		t.Fatal("attempt not eligible at interval boundary")
+	}
+}

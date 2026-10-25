@@ -10,6 +10,7 @@
 | N04 | 退役activeが蓄積すると全件をexisting mapへ集積しheapピークが増加 | 256件ずつ処理し、現在のsignalに一致するseenだけ保持。未知を復旧にはしない |
 | N05 | 旧版の重複active行が同一sampleの復旧確認回数を水増し | 各signalのsample時刻で重複カウントを抑止 |
 | N06 | HAの一受信口がハングすると逐次送信・単一workerで大量通知が滞留 | 32有限worker、最大8宛先並行。520件、ハング混在、inflight<=160/queue<=128/retry<=2048、shutdown待機を回帰 |
+| N07 | retry記録が2048件になるまで期限切れを回収せず低負荷で徐々に保持 | 毎Evaluateで期限切れ非inflightだけを回収。期限前抑制を維持し、変更前/後の60分負荷を比較 |
 | L01 | 管理ファイルの親がsymlinkだと権限変更や削除が別の場所へ向く | 親ディレクトリを変更前に検証。外部sentinelを使った回帰 |
 | L02 | managed unitがない既存active/enabledサービスを停止せず監視DBをバックアップし得る | 配置前に管理外unitを拒否し手動移行へ。稼働中DBをコピーしない |
 | L03 | systemd manager不在とinactive unitを区別できず配置へ進む | manager接続をファイル配置/ユーザー作成前に検証 |

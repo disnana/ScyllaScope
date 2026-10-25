@@ -51,7 +51,7 @@ func fingerprint(observer, kind, node string) string {
 func (e *Engine) Evaluate(ctx context.Context, s model.Snapshot) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	if len(e.lastAttempt) >= 2048 {
+	if len(e.lastAttempt) > 0 {
 		for id, at := range e.lastAttempt {
 			if now := s.GeneratedAt; now.Sub(at) >= e.cfg.Notifications.RetryInterval && !e.inflight[id] {
 				delete(e.lastAttempt, id)
