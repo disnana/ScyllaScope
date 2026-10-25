@@ -40,12 +40,13 @@
   },
   "adapter_defects_reproduced": [],
   "not_tested": [
-    "authentication",
-    "TLS/CA/hostname verification",
     "cancellation during initial session creation",
     "multi-node topology and partitions",
     "versions other than the pinned 6.2.3 image",
-    "long-duration CQL allocation behavior"
+    "long-duration CQL allocation behavior",
+    "mutual TLS and client certificate authorization",
+    "certificate revocation or rotation",
+    "operational authentication/TLS configuration"
   ],
   "cleanup": "The dedicated fixture container was removed and absence was verified; downloaded image retained as a development cache.",
   "reproduction": "tests/integration/README.md",
@@ -66,5 +67,38 @@
     "package_seconds": 10.896,
     "race_detected": false,
     "container_removed_after_run": true
+  },
+  "authenticated_tls_fixture": {
+    "status": "PASS",
+    "race_detected": false,
+    "package_seconds": 7.519,
+    "top_level_cases": 1,
+    "negative_subtests": 4,
+    "container_owned_by_test": true,
+    "loopback_port_mapping_verified_before_client_creation": true,
+    "private_material": "CA, RSA leaf/key, wrong CA and dedicated YAML generated inside t.TempDir, mounted read-only; never committed",
+    "certificate_SAN": [
+      "scylla.fixture.invalid",
+      "127.0.0.1"
+    ],
+    "host_trust_modified": false,
+    "authenticator": "PasswordAuthenticator",
+    "authorizer": "CassandraAuthorizer",
+    "credentials": "documented default superuser of this brand-new disposable image only",
+    "positive_controls": [
+      "trusted fixture CA plus matching synthetic hostname succeeds",
+      "fresh valid connection after negative cases succeeds"
+    ],
+    "negative_cases": [
+      "wrong password rejected",
+      "missing credentials rejected",
+      "wrong CA rejected as unknown authority",
+      "wrong hostname rejected as SAN mismatch"
+    ],
+    "container_removed_after_run": true,
+    "reproduction": "SCYLLASCOPE_AUTH_TLS_INTEGRATION=1 go test -race -timeout=5m -count=1 -v ./tests/integration -run ^TestDisposableScyllaAuthenticationTLS$",
+    "earlier_pass_package_seconds": 13.253,
+    "private_material_removed_after_run": true,
+    "runtime_code_changed": false
   }
 }

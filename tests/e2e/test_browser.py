@@ -2,7 +2,7 @@
 Requires: pip install playwright; playwright install chromium
 Run devserver on 127.0.0.1:8765 before this suite. No Scylla credentials are used.
 """
-import json, os, time, unittest, urllib.request
+import datetime, json, os, time, unittest, urllib.request
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 BASE=os.getenv('SCYLLASCOPE_TEST_URL','http://127.0.0.1:8765')
@@ -83,7 +83,23 @@ class BrowserTests(unittest.TestCase):
   self.page.locator('[data-page=nodes] tbody button').first.click();expect(self.page.locator('dialog')).to_be_visible();self.assertLessEqual(self.page.locator('dialog').bounding_box()['width'],390)
   self.page.screenshot(path=str(OUT/'mobile-drawer.png'))
  def test_18_history_ranges_return_valid_data(self):
-  self.nav('metrics');expect(self.page.locator('[data-page=metrics] svg')).not_to_have_count(0);sel=self.page.get_by_role('combobox',name='履歴の時間範囲');sel.select_option('1');self.page.wait_for_timeout(250);one=self.page.locator('[data-page=metrics] .hint').first.inner_text();sel.select_option('6');self.page.wait_for_timeout(250);six=self.page.locator('[data-page=metrics] .hint').first.inner_text();sel.select_option('1');self.page.wait_for_timeout(250);self.assertNotEqual(one,six);self.assertEqual(one,self.page.locator('[data-page=metrics] .hint').first.inner_text())
+  self.nav('metrics');panel=self.page.locator('[data-page=metrics]');expect(panel.locator('svg')).not_to_have_count(0)
+  sel=self.page.get_by_role('combobox',name='履歴の時間範囲');refresh=panel.get_by_role('button',name='履歴を更新',exact=True)
+  def stamp(value):return datetime.datetime.fromisoformat(value.replace('Z','+00:00')).timestamp()
+  def load_range(hours):
+   sel.select_option(hours);expect(refresh).to_be_enabled()
+   with self.page.expect_response(lambda r:f'/api/v1/history?hours={hours}' in r.url) as response:refresh.click()
+   data=response.value.json();self.assertTrue(data);expect(sel).to_have_value(hours)
+   expect(panel.locator('.hint').first).to_contain_text(f'{len(data)} サンプル')
+   now=time.time()
+   self.assertTrue(all(now-int(hours)*3600-5<=stamp(row['time'])<=now+5 for row in data))
+   return data
+  one=load_range('1');one_path=panel.locator('.chart-line').first.get_attribute('d');six=load_range('6')
+  # Both ranges may legitimately hit the same downsampling cap. Verify time
+  # coverage and cached rendering instead of assuming different sample counts.
+  self.assertLess(stamp(six[0]['time']),stamp(one[0]['time']))
+  sel.select_option('1');expect(sel).to_have_value('1');expect(panel.locator('.chart-line').first).to_have_attribute('d',one_path)
+
  def test_19_alert_action_persists_over_sse(self):
   self.nav('alerts');self.page.get_by_role('button',name='確認済みにする').first.click();expect(self.page.locator('.incident-bottom').first).to_contain_text('確認済み');self.wait_tick();expect(self.page.locator('.incident-bottom').first).to_contain_text('確認済み');self.page.get_by_role('button',name='通知を再開').first.click();expect(self.page.get_by_role('button',name='通知を再開')).to_have_count(0)
  def test_20_scroll_position_survives_sse(self):

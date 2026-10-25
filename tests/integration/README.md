@@ -49,10 +49,46 @@ query, system.cluster_status discovery, a pre-canceled context, query failure
 while the fixture is stopped, reconnection with the same adapter after restart,
 and rejection after Close. It does not write user tables.
 
-Authentication, TLS/CA/hostname verification, cancellation during initial
-session creation, multi-node topology, version compatibility beyond 6.2.3, and
-long-running CQL allocation behavior remain separate acceptance conditions.
+The plaintext fixture does not test authentication or TLS. The separate
+opt-in authenticated TLS case below covers those policies. Cancellation during
+initial session creation, multi-node topology, version compatibility beyond
+6.2.3, and long-running CQL allocation behavior remain acceptance conditions.
 Raw Docker/CQL logs are private temporary artifacts and are not committed.
 
 After this guard was added, the real fixture race suite was repeated successfully
 (10.896 seconds, no race), and its container was removed again.
+
+
+## Separate authenticated TLS fixture
+
+With the same image already cached, run:
+
+```bash
+SCYLLASCOPE_AUTH_TLS_INTEGRATION=1 \
+  go test -race -timeout=5m -count=1 -v ./tests/integration \
+  -run '^TestDisposableScyllaAuthenticationTLS$'
+```
+
+This case provisions its own uniquely named, labelled disposable local container
+and checks its published loopback CQL port before creating the CQL client.
+It generates a private temporary CA, RSA leaf certificate/key and dedicated
+Scylla YAML inside `t.TempDir`; they are read-only mounted into the fixture and
+removed after the test. The certificate SAN contains only the synthetic
+`scylla.fixture.invalid` name and the loopback IP. No host trust store is changed.
+The Scylla image's documented default superuser credentials are used solely in
+this brand-new fixture; operational credentials are never read.
+
+The test uses PasswordAuthenticator and CassandraAuthorizer with client TLS on
+9042. The production adapter succeeds with the trusted fixture CA and matching
+synthetic hostname. Wrong password, missing credentials, wrong CA, and wrong
+hostname are each rejected. A final valid connection succeeds after those
+negative cases to check that the fixture stayed healthy.
+
+The final 2026-10-25 race execution passed in 7.519 seconds (one top-level case and
+four negative subtests), with no race. Driver diagnostics confirmed password
+rejection, authentication-required rejection, unknown-authority rejection, and
+SAN hostname mismatch. An earlier independent run also passed in 13.253 seconds. Each temporary fixture
+was removed and absence confirmed.
+Mutual TLS/client certificates, revocation/rotation, other Scylla versions,
+multi-node authentication/topology and long-term CQL memory behavior are not
+covered by this fixture.
