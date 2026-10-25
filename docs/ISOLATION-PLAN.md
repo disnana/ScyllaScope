@@ -42,3 +42,11 @@
 monitorは再起動用Topologyに全snapshot（incidents/events/metrics等）を保存するが、唯一の読み出しconsumerは起動時にClusterNameとNodes.metadataを使う。この重複JSON/BLOBは契約上不要であり、callerだけをmetadata保存へ縮小する案を独立確認した。Storeの汎用round-tripは維持し、旧full/newcompactの起動・fallback同等性、metadata鮮度、cluster mismatch、配信snapshot不変を回帰する。これは不要な保持と書込の削減であり、RSS主因を証明したという主張はしない。
 
 collector_fixedには同一processの小さなCQL/HTTP fixture serverも含まれ、実gocql driverではない。collector単体の厳密なメモリ分解とは扱わない。外部runnerは独立にwall-clock・RSS・sample更新を監視し、上限/30秒のsample停止時は当該case専用process groupを停止して後続caseを実行しない。
+
+## 10:10 UTC: 停止後の有限な再開計画
+
+最初のcollector_fixedは15.52秒でloopback probe検証に失敗し、後続は未実行で停止した。失敗データは残す。200ms probe/1秒fixture deadlineを変えず、詳細エラーとfixture統計だけを加えた60秒の診断は成功したが、元の原因は再現できず未特定である。
+
+collectorのみ診断binaryで予定の900秒を1回実行し、再度失敗すればそのcaseを未検証として止める。その他のJSON/SSE/通知/compactは元binaryで実行する。したがって全case同binaryという当初条件からcollectorだけ逸脱し、source/hashを別に記録する。productionコードは同一で、差分はテスト診断のみ。特にfull/compact SQLite比較は元の同一binaryを維持する。
+
+追加の失敗15.52秒＋診断60秒を吸収するため、compactを最大20分から18分（1080秒）へ短縮する。各caseの通常測定＋失敗＋追加診断は計95分以内に収める。停止中の調査時間を含むwall-clock完了見込みは当初11:19から約11:24 UTCへ更新する。再試験の成功を元の失敗原因の解消とは扱わず、両方を報告する。

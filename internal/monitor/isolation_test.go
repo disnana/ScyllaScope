@@ -467,7 +467,7 @@ func TestIsolationMemory(t *testing.T) {
 					}
 					for _, node := range current.Nodes {
 						if !node.CQL.OK || !node.Internode.OK {
-							err = fmt.Errorf("loopback probe fixture failed")
+							err = fmt.Errorf("loopback probe fixture failed node=%s CQL=%+v Internode=%+v collect_ms=%f", node.Address, node.CQL, node.Internode, current.CollectDurationMS)
 						}
 					}
 				}
