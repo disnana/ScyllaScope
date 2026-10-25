@@ -1,8 +1,8 @@
 # 現在の検証状況
 
-最新の独立レビュー・60分×2の比較・実Scylla認証/TLS・実HA・20万行旧DB・native allocator診断は[継続検証結果](docs/CONTINUATION-VALIDATION.md)を参照してください。
+最新のTopology保存縮小・SSE allocation削減・要素を分けた逐次測定・未完了case・最終検証は[RSS切り分け結果](docs/RSS-ISOLATION-RESULTS.md)を参照してください。前回の60分×2と実Scylla/HA/旧DBは[継続検証結果](docs/CONTINUATION-VALIDATION.md)に履歴として残しています。前回RSS値には同processの試験clientも含まれていました。
 
-**通知・保持・ライフサイクルの不具合を追加修正しましたが、RSSには正の傾きが残り、数週間の問題の解消判定はしていません。Draftと正式版昇格保留を維持します。**
+**通知・保持・ライフサイクル・不要allocationを修正しましたが、数週間のRSS問題の受け入れは未達です。collectorのloopback Dial失敗2件も未解明として残します。Draftと正式版昇格保留を維持します。**
 
 以下は初回提出時点の履歴です。10分試験や古い件数を現在の最終検証と混同しないでください。
 

@@ -1,3 +1,11 @@
+## 11:28 UTC: 全予定case終了、最終資料/CIへ
+
+修正後json_sse360秒は11:20:55–11:26:57 UTCに成功。case process合計5586.281秒（93.10分）、失敗/60秒診断/確認を含め95分以内。各case別processで最長18分、単一93分の連続稼働ではない。旧60分×2も根拠として再利用した。
+
+修正runtime58b5dbbで全体build/test/vet/race/modules verify・AMD64/ARM64・frontend再現性・Node18・build gate5・Chromium21・govulncheck成功、同commitのPR CIも成功。SSE framing802955→32B/op、sampled allocation profileは11.23→5.03MiB/s（異なる有限区間の推定）。長期RSS解消とは呼ばない。
+
+docs/RSS-ISOLATION-RESULTS.mdとpublic-safe summary/figure/profile要約を追加。collector2失敗、実gocql長期・systemd実機・2〜4週間受入未検証を明記。独立資料確認後、docs-only最終HEADをpushしCI結果を確認する。マージ/タグ/releaseは行わない。
+
 ## 11:18 UTC: 基準測定終了、SSE修正・API回帰成功
 
 compact1080秒は10:59:07–11:17:08 UTCに完走。原binaryによる基準測定をすべて終了し、データを保持した。その後、SSEのheader/JSON bytes/終端を単一deadline/flush下で分けて書く修正を適用。API全体のrace回帰が4.143秒で成功。large Unicode JSON wire、各部分のshortwrite/error、flush error、slot/購読解放を追加確認。
